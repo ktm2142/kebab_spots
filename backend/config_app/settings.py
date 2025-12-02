@@ -3,8 +3,12 @@ from datetime import timedelta
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+AUTH_USER_MODEL = 'auth_app.CustomUser'
 
 
 # Quick-start development settings - unsuitable for production
@@ -31,8 +35,10 @@ INSTALLED_APPS = [
 
     'django.contrib.gis',
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist'
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+
+    'auth_app',
 ]
 
 MIDDLEWARE = [
@@ -130,7 +136,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=300),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True
 }
 
 
