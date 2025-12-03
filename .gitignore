@@ -141,3 +141,23 @@ GitHub.sublime-settings
 # Frontend / React / Vite
 frontend/node_modules/
 frontend/dist/
+frontend/.vite/
+frontend/.eslintcache
+frontend/*.log
+
+
+### react ###
+.DS_*
+*.log
+logs
+**/*.backup.*
+**/*.back.*
+
+node_modules
+bower_components
+
+*.sublime*
+
+psd
+thumb
+sketch
