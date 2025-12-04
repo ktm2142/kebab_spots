@@ -9,7 +9,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     # simple check if password 1 and password 2 match
     def validate(self, attrs):
         if attrs['password'] != attrs['password_2']:
-            raise serializers.ValidationError('passwords doesn\'t match')
+            raise serializers.ValidationError('Passwords doesn\'t match')
         return attrs
 
     class Meta:
@@ -20,4 +20,4 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'city', 'country']
+        fields = ['username', 'first_name', 'last_name', 'email', 'city', 'country']
