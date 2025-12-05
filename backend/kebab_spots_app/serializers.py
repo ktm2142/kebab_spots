@@ -7,4 +7,4 @@ class KebabSpotSerializer(GeoFeatureModelSerializer):
         model = KebabSpot
         geo_field = 'location'
         fields = ['id', 'location', 'name', 'description', 'rating', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'user', 'created_at']
+        read_only_fields = ['user', 'created_at']
