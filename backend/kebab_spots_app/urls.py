@@ -1,10 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from kebab_spots_app.views import KebabSpotViewSet
-
-router = DefaultRouter()
-router.register('spot', KebabSpotViewSet)
+from django.urls import path
+from .views import ListKebabSpotsAPIView, CreateKebabSpotAPIView, DetailsKebabSpotAPIView
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('spots/', ListKebabSpotsAPIView.as_view(), name='spots'),
+    path('spot_detail/<int:pk>/', DetailsKebabSpotAPIView.as_view(), name='spot_detail'),
+    path('create_spot/', CreateKebabSpotAPIView.as_view(), name='create_spot'),
 ]

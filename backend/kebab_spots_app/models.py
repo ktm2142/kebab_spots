@@ -4,7 +4,7 @@ from config_app.settings import AUTH_USER_MODEL
 
 
 class KebabSpot(models.Model):
-    location = gis_models.PointField()
+    coordinates = gis_models.PointField(geography=True)
     user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='spots')
     name = models.CharField(max_length=30)
     description = models.TextField()
