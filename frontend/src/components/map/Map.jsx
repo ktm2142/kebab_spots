@@ -15,21 +15,47 @@ const Map = () => {
     lon: default_lon,
   });
 
-  const handleUserLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        console.log("Geolocation got", latitude, longitude)
-        setCoordinates({
-          lat: latitude,
-          lon: longitude,
-        });
-      },
-      (error) => {
-        console.error("Error geting user's position", error);
-        alert("Check your geolocation permissions");
-      }
-    );
+  const getPosition = (options) => {
+    return new Promise((reslove, reject) => {
+      navigator.geolocation.getCurrentPosition(reslove, reject, options);
+    });
+  };
+
+  const handleUserLocation = async () => {
+    console.log("Getting geolocation");
+
+    const options = {
+      // enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    }
+
+    try {
+      const position = await getPosition(options);
+      const { latitude, longitude } = position.coords;
+      console.log("Geolocation got", latitude, longitude);
+      setCoordinates({
+        lat: latitude,
+        lon: longitude,
+      });
+    } catch (error) {
+      console.error("Error geting user's position", error);
+      alert("Check your geolocation permissions or use search");
+    }
+    // navigator.geolocation.getCurrentPosition(
+    //   (position) => {
+    //     const { latitude, longitude } = position.coords;
+    //     console.log("Geolocation got", latitude, longitude)
+    //     setCoordinates({
+    //       lat: latitude,
+    //       lon: longitude,
+    //     });
+    //   },
+    //   (error) => {
+    //     console.error("Error geting user's position", error);
+    //     alert("Check your geolocation permissions");
+    //   }
+    // );
   };
 
   const fetchSpots = async () => {
@@ -48,8 +74,8 @@ const Map = () => {
   };
 
   useEffect(() => {
-    handleUserLocation()
-  }, [])
+    handleUserLocation();
+  }, []);
 
   useEffect(() => {
     fetchSpots();
@@ -61,10 +87,7 @@ const Map = () => {
         <button onClick={handleUserLocation}>My location</button>
         <span>Radius:</span>
         {[5, 10, 30].map((val) => (
-          <button 
-          key={val} 
-          onClick={() => setRadius(val)}
-          >
+          <button key={val} onClick={() => setRadius(val)}>
             {val} km
           </button>
         ))}
