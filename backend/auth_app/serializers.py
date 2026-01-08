@@ -20,4 +20,4 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'email', 'city', 'country']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'city', 'country']

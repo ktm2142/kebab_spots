@@ -46,7 +46,7 @@ privateApiClient.interceptors.response.use(
   // if server returns error (like 401, 403, 500, etc) - handle it here
   (error) => {
     // if unauthorised (401) - delete tokens from local storage
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
     }

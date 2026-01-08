@@ -2,24 +2,43 @@ import { useState } from "react";
 import { Marker, useMapEvents } from "react-leaflet";
 import BaseMap from "../map/BaseMap";
 import { privateApiClient } from "../../api";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const SpotCreate = () => {
+/**
+ * LocationMarker - A component that handles map click events to set spot position.
+ * Listens to map clicks and updates the position state with the clicked coordinates.
+ * Returns null as it doesn't render any visible UI elements.
+ */
+const LocationMarker = ({ setPos }) => {
+  useMapEvents({
+    click(e) {
+      setPos(e.latlng);
+    },
+  });
+  return null;
+};
+
+/**
+ * CreateSpot - Component for creating a new kebab spot.
+ *
+ * Features:
+ * - Allows user to click on map to set spot location
+ * - Form for entering spot name and description
+ * - Preserves map position from previous view (if navigated from Map component)
+ * - Sends POST request to create spot via private API
+ */
+const CreateSpot = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Get the map center position passed from Map component via navigation state.
+  // This allows the map to start at the same position the user was viewing
+  // when they clicked "Create Kebab Spot" button.
+  const initialCenter = location.state?.lastCenter;
   const [position, setPosition] = useState(null);
   const [form, setForm] = useState({
     name: "",
     description: "",
   });
-
-  const LocationMarker = ({ setPos }) => {
-    useMapEvents({
-      click(e) {
-        setPos(e.latlng);
-      },
-    });
-    return null;
-  };
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -28,6 +47,8 @@ const SpotCreate = () => {
     }));
   };
 
+  // Handles form submission: validates position, formats data in GeoJSON format,
+  // and sends POST request to create the spot. Redirects to home on success.
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!position) {
@@ -40,6 +61,8 @@ const SpotCreate = () => {
       description: form.description,
       coordinates: {
         type: "Point",
+        // GeoJSON format requires [longitude, latitude] order (opposite of Leaflet's [lat, lng])
+        // position.latlng from Leaflet has .lat and .lng properties, so we swap them here
         coordinates: [position.lng, position.lat],
       },
     };
@@ -77,8 +100,8 @@ const SpotCreate = () => {
       </form>
 
       <p>Click on the map to set the location</p>
-      
-      <BaseMap>
+
+      <BaseMap center={initialCenter}>
         <LocationMarker setPos={setPosition} />
         {position && <Marker position={position} />}
       </BaseMap>
@@ -92,4 +115,4 @@ const SpotCreate = () => {
   );
 };
 
-export default SpotCreate;
+export default CreateSpot;

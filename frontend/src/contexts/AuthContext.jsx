@@ -1,15 +1,17 @@
 import { createContext, useEffect, useState } from "react";
-import { publicApiClient, privateApiClient } from "../api";
+import { publicApiClient, privateApiClient } from "../api"; // isntead of writing paths in every request, using thim in variables with interceptors
 import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  // const [authenticated, setAuthenticated] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate(); // for redirection by using URL path
+  const [user, setUser] = useState(null); // user data will be written in this state
+  const [errorMessage, setErrorMessage] = useState(null); // state for throwing erors in components
 
+  // errors tells exactly in which function we got error
+
+  // registration redirects to login page after success
   const registration = async (data) => {
     try {
       setErrorMessage(null);
@@ -24,6 +26,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // login functionality starts getting user function, after saving tokens
   const login = async (data) => {
     try {
       const response = await publicApiClient.post("auth/token/obtain/", data);
@@ -40,33 +43,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // logout functionality clears tokens from local storage, deletes user state and redirect to main page
   const logout = async () => {
     try {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      // setAuthenticated(false)
-      setUser(null)
+      setUser(null);
       navigate("/");
     } catch (error) {
       console.error(error);
     }
   };
 
+  // Main functionality of downloading user profile
   const fetchUserProfile = async () => {
     try {
-      // setAuthenticated(false);
       const response = await privateApiClient.get("auth/user_profile/");
       setUser(response.data);
-      // setAuthenticated(true);
     } catch (error) {
-      setUser(null)
-      // setAuthenticated(false)
+      setUser(null);
       error.response?.data
         ? console.error("error in fetchUserProfile", error.response.data)
         : console.error("error in fetchUserProfile", error);
     }
   };
 
+  // updating user data in backend and writing updated data from backends response in user state
   const updateUserProfile = async (data) => {
     try {
       const response = await privateApiClient.patch("auth/user_profile/", data);
@@ -78,13 +80,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // on first loading of app we download user profile
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
-      fetchUserProfile()
+      fetchUserProfile();
     } else {
-      setUser(null)
+      setUser(null);
     }
-  }, [])
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -95,7 +98,6 @@ export const AuthProvider = ({ children }) => {
         fetchUserProfile,
         updateUserProfile,
         user,
-        // authenticated,
         errorMessage,
       }}
     >
