@@ -29,9 +29,10 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
         if lat and lon:
             try:
                 center_point = Point(float(lon), float(lat), srid=4326)
-                return qs.filter(coordinates__distance_lte=(center_point, D(km=float(radius))))
+                qs = qs.filter(coordinates__distance_lte=(center_point, D(km=float(radius))))
             except (ValueError, TypeError):
                 pass
+        qs = filter_by_amenities(qs, self.request.query_params)
         return qs
 
 
@@ -92,15 +93,16 @@ class SearchKebabSpotsAPIView(APIView):
             nearby_spots = KebabSpot.objects.filter(
                 coordinates__distance_lte=(center_point, D(km=float(radius)))
             )
+            nearby_spots = filter_by_amenities(nearby_spots, request.query_params)
 
             serializer = KebabSpotSerializer(nearby_spots, many=True)
             return Response({
-                'location': { # coordinates and name of town we searched
+                'location': {  # coordinates and name of town we searched
                     'name': data[0].get('name'),
                     'lat': lat,
                     'lon': lon
                 },
-                'spots': serializer.data # list of kebab spot objects
+                'spots': serializer.data  # list of kebab spot objects
             })
 
         except requests.RequestException:
@@ -114,6 +116,21 @@ class SearchKebabSpotsAPIView(APIView):
                 {'error': 'invalid data received from OSM'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+amenities = [
+    'private_territory', 'shop_nearby', 'gazebos', 'near_water',
+    'fishing', 'trash_cans', 'tables', 'benches', 'fire_pit', 'toilet',
+    'car_access'
+]
+
+
+def filter_by_amenities(queryset, query_params):
+    for amenity in amenities:
+        value = query_params.get(amenity)
+        if value == 'true':
+            queryset = queryset.filter(**{amenity: True})
+    return queryset
 
 
 class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
