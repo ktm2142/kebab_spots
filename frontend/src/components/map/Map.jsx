@@ -25,7 +25,7 @@ const MapTracker = ({ setCenterRef }) => {
 const Map = () => {
   const [spots, setSpots] = useState([]);
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const default_lat = 50.450415530354796; // Default coordinates for Kyiv, Ukraine (used as fallback initial map center)
   const default_lon = 30.524544927812016;
   const [radius, setRadius] = useState(5);
@@ -33,6 +33,19 @@ const Map = () => {
   const [coordinates, setCoordinates] = useState({
     lat: default_lat,
     lon: default_lon,
+  });
+  const [amenities, setAmenities] = useState({
+    private_territory: false,
+    shop_nearby: false,
+    gazebos: false,
+    near_water: false,
+    fishing: false,
+    trash_cans: false,
+    tables: false,
+    benches: false,
+    fire_pit: false,
+    toilet: false,
+    car_access: false,
   });
   /**
    * lastMapPosition - A ref that stores the last known map center position.
@@ -89,6 +102,14 @@ const Map = () => {
     }
   };
 
+  // funcrion for updating check mark
+  const handleAmenityChange = (amenityName) => {
+    setAmenities((prev) => ({
+      ...prev,
+      [amenityName]: !prev[amenityName],
+    }));
+  };
+
   // Memoized to prevent unnecessary re-renders of BaseMap component.
   // Only recalculates when coordinates actually change.
   const mapCenter = useMemo(() => {
@@ -97,12 +118,18 @@ const Map = () => {
 
   const fetchSpots = async () => {
     try {
+      const params = {
+        lat: coordinates.lat,
+        lon: coordinates.lon,
+        radius: radius,
+      };
+      Object.keys(amenities).forEach((key) => {
+        if (amenities[key]) {
+          params[key] = "true";
+        }
+      });
       const result = await publicApiClient.get("kebab_spots/spots/", {
-        params: {
-          lat: coordinates.lat,
-          lon: coordinates.lon,
-          radius: radius,
-        },
+        params,
       });
       setSpots(result.data.features || []);
     } catch (error) {
@@ -169,11 +196,17 @@ const Map = () => {
         <button onClick={handleCreateSpot}>Create Kebab Spot</button>
         <button onClick={handleUserLocation}>My location</button>
         <span>Radius:</span>
-        {[5, 10, 30].map((val) => (
-          <button key={val} onClick={() => setRadius(val)}>
-            {val} km
-          </button>
-        ))}
+        <select
+          value={radius}
+          onChange={(e) => setRadius(Number(e.target.value))}
+        >
+          {[5, 10, 30].map((val) => (
+            <option key={val} value={val}>
+              {val} km
+            </option>
+          ))}
+        </select>
+
         <form onSubmit={handleSearch}>
           <input
             type="text"
@@ -182,6 +215,105 @@ const Map = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <button type="submit">Search</button>
+        </form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            fetchSpots();
+          }}
+        >
+          <div>
+            <h3>Filter spots by amenities</h3>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.private_territory}
+                onChange={() => handleAmenityChange("private_territory")}
+              />
+              Private territory
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.shop_nearby}
+                onChange={() => handleAmenityChange("shop_nearby")}
+              />
+              Shop nearby
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.gazebos}
+                onChange={() => handleAmenityChange("gazebos")}
+              />
+              Gazebos
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.near_water}
+                onChange={() => handleAmenityChange("near_water")}
+              />
+              Near water
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.fishing}
+                onChange={() => handleAmenityChange("fishing")}
+              />
+              Fishing
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.trash_cans}
+                onChange={() => handleAmenityChange("trash_cans")}
+              />
+              Trash cans
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.tables}
+                onChange={() => handleAmenityChange("tables")}
+              />
+              Tables
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.benches}
+                onChange={() => handleAmenityChange("benches")}
+              />
+              Benches
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.fire_pit}
+                onChange={() => handleAmenityChange("fire_pit")}
+              />
+              Fire pit
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.toilet}
+                onChange={() => handleAmenityChange("toilet")}
+              />
+              Toilet
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.car_access}
+                onChange={() => handleAmenityChange("car_access")}
+              />
+              Car access
+            </label>
+          </div>
+          <button type="submit">Apply filter</button>
         </form>
       </div>
       <BaseMap center={mapCenter}>

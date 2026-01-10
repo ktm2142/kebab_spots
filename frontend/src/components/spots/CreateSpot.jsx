@@ -39,11 +39,31 @@ const CreateSpot = () => {
     name: "",
     description: "",
   });
+  const [amenities, setAmenities] = useState({
+    private_territory: false,
+    shop_nearby: false,
+    gazebos: false,
+    near_water: false,
+    fishing: false,
+    trash_cans: false,
+    tables: false,
+    benches: false,
+    fire_pit: false,
+    toilet: false,
+    car_access: false,
+  });
 
-  const handleChange = (e) => {
+  const handleFormChange = (e) => {
     setForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }));
+  };
+  // funcrion for updating check mark
+  const handleAmenityChange = (amenityName) => {
+    setAmenities((prev) => ({
+      ...prev,
+      [amenityName]: !prev[amenityName],
     }));
   };
 
@@ -59,6 +79,7 @@ const CreateSpot = () => {
     const kebabSpotData = {
       name: form.name,
       description: form.description,
+      ...amenities,
       coordinates: {
         type: "Point",
         // GeoJSON format requires [longitude, latitude] order (opposite of Leaflet's [lat, lng])
@@ -86,15 +107,103 @@ const CreateSpot = () => {
         <input
           name="name"
           value={form.name}
-          onChange={handleChange}
+          onChange={handleFormChange}
           placeholder="Name of point"
         />
         <textarea
           name="description"
           value={form.description}
-          onChange={handleChange}
+          onChange={handleFormChange}
           placeholder="Description of point"
         />
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.private_territory}
+            onChange={() => handleAmenityChange("private_territory")}
+          />
+          Private territory
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.shop_nearby}
+            onChange={() => handleAmenityChange("shop_nearby")}
+          />
+          Shop nearby
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.gazebos}
+            onChange={() => handleAmenityChange("gazebos")}
+          />
+          Gazebos
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.near_water}
+            onChange={() => handleAmenityChange("near_water")}
+          />
+          Near water
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.fishing}
+            onChange={() => handleAmenityChange("fishing")}
+          />
+          Fishing
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.trash_cans}
+            onChange={() => handleAmenityChange("trash_cans")}
+          />
+          Trash cans
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.tables}
+            onChange={() => handleAmenityChange("tables")}
+          />
+          Tables
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.benches}
+            onChange={() => handleAmenityChange("benches")}
+          />
+          Benches
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.fire_pit}
+            onChange={() => handleAmenityChange("fire_pit")}
+          />
+          Fire pit
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.toilet}
+            onChange={() => handleAmenityChange("toilet")}
+          />
+          Toilet
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={amenities.car_access}
+            onChange={() => handleAmenityChange("car_access")}
+          />
+          Car access
+        </label>
 
         <button type="submit">Save</button>
       </form>

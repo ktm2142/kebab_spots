@@ -22,6 +22,17 @@ const UpdateSpot = () => {
   const [form, setForm] = useState({
     name: "",
     description: "",
+    private_territory: false,
+    shop_nearby: false,
+    gazebos: false,
+    near_water: false,
+    fishing: false,
+    trash_cans: false,
+    tables: false,
+    benches: false,
+    fire_pit: false,
+    toilet: false,
+    car_access: false,
   });
 
   // Fetches spot data from API when component mounts or when spot ID changes.
@@ -51,6 +62,17 @@ const UpdateSpot = () => {
       setForm({
         name: spotData.properties.name,
         description: spotData.properties.description,
+        private_territory: spotData.properties.private_territory,
+        shop_nearby: spotData.properties.shop_nearby,
+        gazebos: spotData.properties.gazebos,
+        near_water: spotData.properties.near_water,
+        fishing: spotData.properties.fishing,
+        trash_cans: spotData.properties.trash_cans,
+        tables: spotData.properties.tables,
+        benches: spotData.properties.benches,
+        fire_pit: spotData.properties.fire_pit,
+        toilet: spotData.properties.toilet,
+        car_access: spotData.properties.car_access,
       });
     }
   }, [spotData]);
@@ -101,15 +123,21 @@ const UpdateSpot = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     updateKebabSpotData({
-      name: form.name,
-      description: form.description,
+      ...form
     });
   };
 
-  const handleChange = (e) => {
+  const handleTextChange = (e) => {
     setForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleCheboxChange = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: !prev[e.target.name],
     }));
   };
 
@@ -119,12 +147,115 @@ const UpdateSpot = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <input name="name" value={form.name} onChange={handleChange} />
+        <input
+         name="name"
+          value={form.name} 
+          onChange={handleTextChange} 
+          />
         <textarea
           name="description"
           value={form.description}
-          onChange={handleChange}
+          onChange={handleTextChange}
         />
+        <label>
+          <input
+            type="checkbox"
+            name="private_territory"
+            checked={form.private_territory}
+            onChange={handleCheboxChange}
+          />
+          Private territory
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="shop_nearby"
+            checked={form.shop_nearby}
+            onChange={handleCheboxChange}
+          />
+          Shop nearby
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="gazebos"
+            checked={form.gazebos}
+            onChange={handleCheboxChange}
+          />
+          Gazebos
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="near_water"
+            checked={form.near_water}
+            onChange={handleCheboxChange}
+          />
+          Near water
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="fishing"
+            checked={form.fishing}
+            onChange={handleCheboxChange}
+          />
+          Can fishing
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="trash_cans"
+            checked={form.trash_cans}
+            onChange={handleCheboxChange}
+          />
+          Trash cans
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="tables"
+            checked={form.tables}
+            onChange={handleCheboxChange}
+          />
+          Tables
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="benches"
+            checked={form.benches}
+            onChange={handleCheboxChange}
+          />
+          Benches
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="fire_pit"
+            checked={form.fire_pit}
+            onChange={handleCheboxChange}
+          />
+          Fire pit
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="toilet"
+            checked={form.toilet}
+            onChange={handleCheboxChange}
+          />
+          Toilet
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            name="car_access"
+            checked={form.car_access}
+            onChange={handleCheboxChange}
+          />
+          Car access
+        </label>
 
         <button type="submit">Save</button>
       </form>

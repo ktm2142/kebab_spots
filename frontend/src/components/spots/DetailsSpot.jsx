@@ -83,8 +83,19 @@ const DetailsSpot = () => {
           <button>Update Spot</button>
         </Link>
       )}
-      <h2>{spot.properties.name}</h2>
-      <p>{spot.properties.description}</p>
+      <h2>Name: {spot.properties.name}</h2>
+      <p>Description: {spot.properties.description}</p>
+      <p>Private territory: {spot.properties.private_territory ? "Yes" : "No"}</p>
+      <p>Shops nearby: {spot.properties.shop_nearby ? "Yes" : "No"}</p>
+      <p>Gazebos: {spot.properties.gazebos ? "Yes" : "No"}</p>
+      <p>Near water: {spot.properties.near_water ? "Yes" : "No"}</p>
+      <p>Can fishing: {spot.properties.fishing ? "Yes" : "No"}</p>
+      <p>Trash cans: {spot.properties.trash_cans ? "Yes" : "No"}</p>
+      <p>Tables: {spot.properties.tables ? "Yes" : "No"}</p>
+      <p>Benches: {spot.properties.benches ? "Yes" : "No"}</p>
+      <p>Fire pits: {spot.properties.fire_pit ? "Yes" : "No"}</p>
+      <p>Toilet: {spot.properties.toilet ? "Yes" : "No"}</p>
+      <p>Car access: {spot.properties.car_access ? "Yes" : "No"}</p>
       <BaseMap center={spotCoords} zoom={13}>
         <Marker position={spotCoords}>
           <Popup>{spot.properties.name}</Popup>
