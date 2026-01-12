@@ -1,6 +1,8 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.gis.db import models as gis_models
 from config_app.settings import AUTH_USER_MODEL
+from django.db.models import Avg, Count
 
 
 class KebabSpot(models.Model):
@@ -18,8 +20,9 @@ class KebabSpot(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Rating
-    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
+    # Rating data
+    average_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
+    ratings_count = models.PositiveIntegerField(default=0)
 
     # Amenities
     private_territory = models.BooleanField(default=False)
@@ -34,5 +37,36 @@ class KebabSpot(models.Model):
     toilet = models.BooleanField(default=False)
     car_access = models.BooleanField(default=False)
 
+    def update_rating(self):
+        """
+        We recalculate the average rating based on all ratings for this point.
+        This method is called every time someone adds or changes rating.
+        """
+        aggregated = self.ratings.aggregate(
+            avg=Avg('value'),
+            count=Count('id')
+        )
+        # If there is no rating, avg will be None.
+        self.average_rating = aggregated['avg'] or 0.0
+        self.ratings_count = aggregated['count']
+        self.save(update_fields=['average_rating', 'ratings_count'])
+
     def __str__(self):
         return self.name
+
+
+class KebabSpotRating(models.Model):
+    spot = models.ForeignKey(KebabSpot, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    value = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(5)
+        ])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('spot', 'user')
+
+    def __str__(self):
+        return f'{self.user.username} rated {self.spot.name} with {self.value} rating'

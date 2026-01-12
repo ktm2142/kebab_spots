@@ -34,6 +34,7 @@ const Map = () => {
     lat: default_lat,
     lon: default_lon,
   });
+  const [mapZoom, setMapZoom] = useState(13)
   const [amenities, setAmenities] = useState({
     private_territory: false,
     shop_nearby: false,
@@ -96,6 +97,7 @@ const Map = () => {
         lat: latitude,
         lon: longitude,
       });
+      setMapZoom(13)
     } catch (error) {
       console.error("Error geting user's position", error);
       alert("Check your geolocation permissions or use search");
@@ -153,6 +155,7 @@ const Map = () => {
         lat: parseFloat(lat),
         lon: parseFloat(lon),
       });
+      setMapZoom(13)
     } catch (error) {
       if (error.response?.status === 404) {
         alert("Location didn't found");
@@ -316,7 +319,7 @@ const Map = () => {
           <button type="submit">Apply filter</button>
         </form>
       </div>
-      <BaseMap center={mapCenter}>
+      <BaseMap center={mapCenter} zoom={mapZoom}>
         <MapTracker setCenterRef={lastMapPosition} />
         {spots.map((spot) => (
           <Marker

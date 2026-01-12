@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /**
  * ChangeMapLocation - A component that updates the map view when center prop changes.
@@ -17,13 +17,13 @@ import { useEffect, useMemo } from "react";
  * Used for: Dynamically centering the map when user gets geolocation, searches
  * for a location, or navigates from another component.
  */
-const ChangeMapLocation = ({ center }) => {
+const ChangeMapLocation = ({ center, zoom }) => {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.setView(center);
+      map.setView(center, zoom);
     }
-  }, [center, map]); // map in dependencies too because instance of map changing
+  }, [center, zoom, map]); // map in dependencies too because instance of map changing
   return null;
 };
 
@@ -68,7 +68,7 @@ const BaseMap = ({ center, style, zoom, children }) => {
       style={style || { height: "500px", width: "500px" }}
     >
       {/* Dynamically updates map center when center prop changes */}
-      <ChangeMapLocation center={mapCenter} />
+      <ChangeMapLocation center={mapCenter} zoom={zoom} />
       {/* OpenStreetMap tile layer - provides the actual map imagery */}
       <TileLayer
         attribution="&copy; <a href=https://www.openstreetmap.org.copyright>OpenStreetMap</a> contributors"
