@@ -1,13 +1,29 @@
 import requests
 from rest_framework import generics, status
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 
-from .models import KebabSpot
+from .models import KebabSpot, KebabSpotRating
 from .serializers import KebabSpotSerializer
+
+
+amenities = [
+    'private_territory', 'shop_nearby', 'gazebos', 'near_water',
+    'fishing', 'trash_cans', 'tables', 'benches', 'fire_pit', 'toilet',
+    'car_access'
+]
+
+
+def filter_by_amenities(queryset, query_params):
+    for amenity in amenities:
+        value = query_params.get(amenity)
+        if value == 'true':
+            queryset = queryset.filter(**{amenity: True})
+    return queryset
 
 
 class ListKebabSpotsAPIView(generics.ListAPIView):
@@ -118,21 +134,6 @@ class SearchKebabSpotsAPIView(APIView):
             )
 
 
-amenities = [
-    'private_territory', 'shop_nearby', 'gazebos', 'near_water',
-    'fishing', 'trash_cans', 'tables', 'benches', 'fire_pit', 'toilet',
-    'car_access'
-]
-
-
-def filter_by_amenities(queryset, query_params):
-    for amenity in amenities:
-        value = query_params.get(amenity)
-        if value == 'true':
-            queryset = queryset.filter(**{amenity: True})
-    return queryset
-
-
 class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
     serializer_class = KebabSpotSerializer
     queryset = KebabSpot.objects.all()
@@ -155,3 +156,44 @@ class CreateKebabSpotAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class RateKebabSpotAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        spot = get_object_or_404(KebabSpot, pk=pk)
+        rating_value = request.data.get('value')
+
+        if rating_value is None:
+            return Response(
+                {'error': 'Rating value wasn\'t given'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            rating_value = int(rating_value)
+            if rating_value < 1 or rating_value > 5:
+                raise ValueError
+        except (ValueError, TypeError):
+            return Response(
+                {'error': 'Rating must be between 1 and 5'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        rating, created = KebabSpotRating.objects.get_or_create(
+            spot=spot,
+            user=self.request.user,
+            defaults={'value': rating_value}
+        )
+        if not created:
+            rating.value = rating_value
+            rating.save()
+
+        spot.update_rating()
+
+        return Response({
+            'message': 'Thank you for your review!',
+            'average_rating': float(spot.average_rating),
+            'ratings_count': spot.ratings_count
+        }, status=status.HTTP_200_OK)

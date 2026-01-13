@@ -60,7 +60,7 @@ class KebabSpotRating(models.Model):
     user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     value = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(0),
+            MinValueValidator(1),
             MaxValueValidator(5)
         ])
     created_at = models.DateTimeField(auto_now_add=True)
