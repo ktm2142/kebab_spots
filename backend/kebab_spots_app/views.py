@@ -18,11 +18,18 @@ amenities = [
 ]
 
 
-def filter_by_amenities(queryset, query_params):
+def apply_filters(queryset, query_params):
     for amenity in amenities:
         value = query_params.get(amenity)
         if value == 'true':
             queryset = queryset.filter(**{amenity: True})
+
+    min_rating = query_params.get('min_rating')
+    if min_rating:
+        try:
+            queryset = queryset.filter(average_rating__gte=float(min_rating))
+        except (ValueError, TypeError):
+            pass
     return queryset
 
 
@@ -48,7 +55,7 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
                 qs = qs.filter(coordinates__distance_lte=(center_point, D(km=float(radius))))
             except (ValueError, TypeError):
                 pass
-        qs = filter_by_amenities(qs, self.request.query_params)
+        qs = apply_filters(qs, self.request.query_params)
         return qs
 
 
@@ -109,7 +116,7 @@ class SearchKebabSpotsAPIView(APIView):
             nearby_spots = KebabSpot.objects.filter(
                 coordinates__distance_lte=(center_point, D(km=float(radius)))
             )
-            nearby_spots = filter_by_amenities(nearby_spots, request.query_params)
+            nearby_spots = apply_filters(nearby_spots, request.query_params)
 
             serializer = KebabSpotSerializer(nearby_spots, many=True)
             return Response({
