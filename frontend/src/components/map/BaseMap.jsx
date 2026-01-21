@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 /**
  * ChangeMapLocation - A component that updates the map view when center prop changes.
@@ -17,13 +17,13 @@ import { useEffect, useMemo, useState } from "react";
  * Used for: Dynamically centering the map when user gets geolocation, searches
  * for a location, or navigates from another component.
  */
-const ChangeMapLocation = ({ center, zoom }) => {
+const ChangeMapLocation = ({ center }) => {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.setView(center, zoom);
+      map.setView(center, 13);
     }
-  }, [center, zoom, map]); // map in dependencies too because instance of map changing
+  }, [center, map]); // map in dependencies too because instance of map changing
   return null;
 };
 

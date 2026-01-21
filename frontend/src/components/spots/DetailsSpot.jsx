@@ -1,9 +1,10 @@
 import { Marker, Popup } from "react-leaflet";
 import BaseMap from "../map/BaseMap";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { publicApiClient } from "../../api";
+import { privateApiClient, publicApiClient } from "../../api";
 import { AuthContext } from "../../contexts/AuthContext";
+import "../../styles/rating.css";
 
 /**
  * DetailsSpot - Component for displaying detailed information about a kebab spot.
@@ -18,7 +19,9 @@ import { AuthContext } from "../../contexts/AuthContext";
 const DetailsSpot = () => {
   const { id } = useParams();
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [spot, setSpot] = useState(null);
+  const [ratingNumber, setRatingNumber] = useState(null);
   const [loading, setLoading] = useState(false);
 
   /**
@@ -33,9 +36,8 @@ const DetailsSpot = () => {
     const fetchSpotDetails = async () => {
       try {
         setLoading(true);
-        const result = await publicApiClient.get(
-          `kebab_spots/spot_detail/${id}/`
-        );
+        const client = user ? privateApiClient : publicApiClient;
+        const result = await client.get(`kebab_spots/spot_detail/${id}/`);
         setSpot(result.data);
       } catch (error) {
         console.error("Error in fetchSpotDetails", error);
@@ -45,7 +47,23 @@ const DetailsSpot = () => {
       }
     };
     fetchSpotDetails();
-  }, [id]);
+  }, [id, user]);
+
+  const handleAddRating = async (rating) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    try {
+      const response = await privateApiClient.post(
+        `kebab_spots/rating/${id}/rate/`,
+        { value: rating },
+      );
+      setRatingNumber(response.data);
+    } catch (error) {
+      console.error("Error in adding rating function", error);
+    }
+  };
 
   // Show loading indicator while fetching spot data
   if (loading) return <p>Loading...</p>;
@@ -74,6 +92,9 @@ const DetailsSpot = () => {
    * Used to conditionally show the "Update Spot" button only to the spot owner.
    */
   const isOwner = user && spot.properties.user === user.id;
+  const currentRating = ratingNumber
+    ? ratingNumber.user_rating
+    : spot.properties.user_rating;
 
   return (
     <div>
@@ -85,7 +106,9 @@ const DetailsSpot = () => {
       )}
       <h2>Name: {spot.properties.name}</h2>
       <p>Description: {spot.properties.description}</p>
-      <p>Private territory: {spot.properties.private_territory ? "Yes" : "No"}</p>
+      <p>
+        Private territory: {spot.properties.private_territory ? "Yes" : "No"}
+      </p>
       <p>Shops nearby: {spot.properties.shop_nearby ? "Yes" : "No"}</p>
       <p>Gazebos: {spot.properties.gazebos ? "Yes" : "No"}</p>
       <p>Near water: {spot.properties.near_water ? "Yes" : "No"}</p>
@@ -96,6 +119,64 @@ const DetailsSpot = () => {
       <p>Fire pits: {spot.properties.fire_pit ? "Yes" : "No"}</p>
       <p>Toilet: {spot.properties.toilet ? "Yes" : "No"}</p>
       <p>Car access: {spot.properties.car_access ? "Yes" : "No"}</p>
+      <div className="rating">
+        <input
+          type="radio"
+          checked={currentRating === 5}
+          id="star5"
+          name="rating"
+          value="5"
+          onChange={(e) => handleAddRating(e.target.value)}
+        />
+        <label htmlFor="star5"></label>
+        <input
+          type="radio"
+          checked={currentRating === 4}
+          id="star4"
+          name="rating"
+          value="4"
+          onChange={(e) => handleAddRating(e.target.value)}
+        />
+        <label htmlFor="star4"></label>
+        <input
+          type="radio"
+          checked={currentRating === 3}
+          id="star3"
+          name="rating"
+          value="3"
+          onChange={(e) => handleAddRating(e.target.value)}
+        />
+        <label htmlFor="star3"></label>
+        <input
+          type="radio"
+          checked={currentRating === 2}
+          id="star2"
+          name="rating"
+          value="2"
+          onChange={(e) => handleAddRating(e.target.value)}
+        />
+        <label htmlFor="star2"></label>
+        <input
+          type="radio"
+          checked={currentRating === 1}
+          id="star1"
+          name="rating"
+          value="1"
+          onChange={(e) => handleAddRating(e.target.value)}
+        />
+        <label htmlFor="star1"></label>
+      </div>
+      {ratingNumber && <p>You rated: {ratingNumber.user_rating}</p>}
+      {ratingNumber ? (
+        <p>Average rating: {ratingNumber.average_rating}</p>
+      ) : (
+        <p>Average rating: {spot.properties.average_rating}</p>
+      )}
+      {ratingNumber ? (
+        <p>Votes: {ratingNumber.ratings_count}</p>
+      ) : (
+        <p>Votes: {spot.properties.ratings_count}</p>
+      )}
       <BaseMap center={spotCoords} zoom={13}>
         <Marker position={spotCoords}>
           <Popup>{spot.properties.name}</Popup>

@@ -34,7 +34,6 @@ const Map = () => {
     lat: default_lat,
     lon: default_lon,
   });
-  const [mapZoom, setMapZoom] = useState(13)
   const [amenities, setAmenities] = useState({
     private_territory: false,
     shop_nearby: false,
@@ -48,6 +47,7 @@ const Map = () => {
     toilet: false,
     car_access: false,
   });
+  const [rating, setRating] = useState("");
   /**
    * lastMapPosition - A ref that stores the last known map center position.
    *
@@ -83,6 +83,12 @@ const Map = () => {
     });
   };
 
+  // Memoized to prevent unnecessary re-renders of BaseMap component.
+  // Only recalculates when coordinates actually change.
+  const mapCenter = useMemo(() => {
+    return [coordinates.lat, coordinates.lon];
+  }, [coordinates.lat, coordinates.lon]);
+
   const handleUserLocation = async () => {
     console.log("Getting geolocation");
     const options = {
@@ -97,7 +103,6 @@ const Map = () => {
         lat: latitude,
         lon: longitude,
       });
-      setMapZoom(13)
     } catch (error) {
       console.error("Error geting user's position", error);
       alert("Check your geolocation permissions or use search");
@@ -112,12 +117,6 @@ const Map = () => {
     }));
   };
 
-  // Memoized to prevent unnecessary re-renders of BaseMap component.
-  // Only recalculates when coordinates actually change.
-  const mapCenter = useMemo(() => {
-    return [coordinates.lat, coordinates.lon];
-  }, [coordinates.lat, coordinates.lon]);
-
   const fetchSpots = async () => {
     try {
       const params = {
@@ -125,6 +124,9 @@ const Map = () => {
         lon: coordinates.lon,
         radius: radius,
       };
+      if (rating) {
+        params.min_rating = rating;
+      }
       Object.keys(amenities).forEach((key) => {
         if (amenities[key]) {
           params[key] = "true";
@@ -155,7 +157,6 @@ const Map = () => {
         lat: parseFloat(lat),
         lon: parseFloat(lon),
       });
-      setMapZoom(13)
     } catch (error) {
       if (error.response?.status === 404) {
         alert("Location didn't found");
@@ -225,101 +226,110 @@ const Map = () => {
             fetchSpots();
           }}
         >
-          <div>
-            <h3>Filter spots by amenities</h3>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.private_territory}
-                onChange={() => handleAmenityChange("private_territory")}
-              />
-              Private territory
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.shop_nearby}
-                onChange={() => handleAmenityChange("shop_nearby")}
-              />
-              Shop nearby
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.gazebos}
-                onChange={() => handleAmenityChange("gazebos")}
-              />
-              Gazebos
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.near_water}
-                onChange={() => handleAmenityChange("near_water")}
-              />
-              Near water
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.fishing}
-                onChange={() => handleAmenityChange("fishing")}
-              />
-              Fishing
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.trash_cans}
-                onChange={() => handleAmenityChange("trash_cans")}
-              />
-              Trash cans
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.tables}
-                onChange={() => handleAmenityChange("tables")}
-              />
-              Tables
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.benches}
-                onChange={() => handleAmenityChange("benches")}
-              />
-              Benches
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.fire_pit}
-                onChange={() => handleAmenityChange("fire_pit")}
-              />
-              Fire pit
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.toilet}
-                onChange={() => handleAmenityChange("toilet")}
-              />
-              Toilet
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={amenities.car_access}
-                onChange={() => handleAmenityChange("car_access")}
-              />
-              Car access
-            </label>
-          </div>
+          <h3>Filter spots by amenities</h3>
+          <label>
+            Minimal rating:
+            <select value={rating} onChange={(e) => setRating(e.target.value)}>
+              <option value="">All ratings</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+            </select>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.private_territory}
+              onChange={() => handleAmenityChange("private_territory")}
+            />
+            Private territory
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.shop_nearby}
+              onChange={() => handleAmenityChange("shop_nearby")}
+            />
+            Shop nearby
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.gazebos}
+              onChange={() => handleAmenityChange("gazebos")}
+            />
+            Gazebos
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.near_water}
+              onChange={() => handleAmenityChange("near_water")}
+            />
+            Near water
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.fishing}
+              onChange={() => handleAmenityChange("fishing")}
+            />
+            Fishing
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.trash_cans}
+              onChange={() => handleAmenityChange("trash_cans")}
+            />
+            Trash cans
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.tables}
+              onChange={() => handleAmenityChange("tables")}
+            />
+            Tables
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.benches}
+              onChange={() => handleAmenityChange("benches")}
+            />
+            Benches
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.fire_pit}
+              onChange={() => handleAmenityChange("fire_pit")}
+            />
+            Fire pit
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.toilet}
+              onChange={() => handleAmenityChange("toilet")}
+            />
+            Toilet
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={amenities.car_access}
+              onChange={() => handleAmenityChange("car_access")}
+            />
+            Car access
+          </label>
           <button type="submit">Apply filter</button>
         </form>
       </div>
-      <BaseMap center={mapCenter} zoom={mapZoom}>
+      <BaseMap center={mapCenter}>
         <MapTracker setCenterRef={lastMapPosition} />
         {spots.map((spot) => (
           <Marker
@@ -334,7 +344,11 @@ const Map = () => {
               click: () => navigate(`/details_spot/${spot.id}/`),
             }}
           >
-            <Tooltip>{spot.properties.name}</Tooltip>
+            <Tooltip>
+              {spot.properties.name}
+              <br />
+              Rating: {spot.properties.average_rating}
+            </Tooltip>
           </Marker>
         ))}
       </BaseMap>

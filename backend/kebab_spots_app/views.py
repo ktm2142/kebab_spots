@@ -1,24 +1,22 @@
 import requests
 from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-
 from .models import KebabSpot, KebabSpotRating
 from .serializers import KebabSpotSerializer
 
 
-amenities = [
-    'private_territory', 'shop_nearby', 'gazebos', 'near_water',
-    'fishing', 'trash_cans', 'tables', 'benches', 'fire_pit', 'toilet',
-    'car_access'
-]
-
-
 def apply_filters(queryset, query_params):
+    amenities = [
+        'private_territory', 'shop_nearby', 'gazebos', 'near_water',
+        'fishing', 'trash_cans', 'tables', 'benches', 'fire_pit', 'toilet',
+        'car_access'
+    ]
     for amenity in amenities:
         value = query_params.get(amenity)
         if value == 'true':
@@ -37,7 +35,8 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
     """
     Getting latitude, longitude and radius from query_params, and loading spots in given radius.
     If data in query_params is not valid we return basic queryset,
-    and load all spots in standard radius which indicated in frontend
+    and load all spots in standard radius which indicated in frontend.
+    If coordinates are not given at all, we don't load ALL spots from DB.
     """
     serializer_class = KebabSpotSerializer
     queryset = KebabSpot.objects.all()
@@ -47,14 +46,22 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
 
         lat = self.request.query_params.get('lat')
         lon = self.request.query_params.get('lon')
-        radius = self.request.query_params.get('radius')
+        radius = self.request.query_params.get('radius', 5)
 
-        if lat and lon:
-            try:
-                center_point = Point(float(lon), float(lat), srid=4326)
-                qs = qs.filter(coordinates__distance_lte=(center_point, D(km=float(radius))))
-            except (ValueError, TypeError):
-                pass
+        if lat is None or lon is None:
+            return KebabSpot.objects.none()
+
+        try:
+            lat = float(lat)
+            lon = float(lon)
+            radius = float(radius)
+            if radius < 5 or radius > 30:
+                raise ValidationError({'details': 'Radius must be between 5 and 30'})
+        except (ValueError, TypeError):
+            raise ValidationError({'details:' 'lat/lon/radius must be numbers'})
+
+        center_point = Point(lon, lat, srid=4326)
+        qs = qs.filter(coordinates__distance_lte=(center_point, D(km=float(radius))))
         qs = apply_filters(qs, self.request.query_params)
         return qs
 
@@ -118,14 +125,16 @@ class SearchKebabSpotsAPIView(APIView):
             )
             nearby_spots = apply_filters(nearby_spots, request.query_params)
 
-            serializer = KebabSpotSerializer(nearby_spots, many=True)
+            serializer = KebabSpotSerializer(nearby_spots, many=True, context={'request': request})
             return Response({
-                'location': {  # coordinates and name of town we searched
+                # coordinates and name of town we searched
+                'location': {
                     'name': data[0].get('name'),
                     'lat': lat,
                     'lon': lon
                 },
-                'spots': serializer.data  # list of kebab spot objects
+                # list of kebab spot objects
+                'spots': serializer.data
             })
 
         except requests.RequestException:
@@ -200,7 +209,8 @@ class RateKebabSpotAPIView(APIView):
         spot.update_rating()
 
         return Response({
-            'message': 'Thank you for your review!',
+            'message': f'Thank you for your review! Your rating of this spot is {rating_value}.',
             'average_rating': float(spot.average_rating),
-            'ratings_count': spot.ratings_count
+            'ratings_count': spot.ratings_count,
+            'user_rating': rating_value
         }, status=status.HTTP_200_OK)
