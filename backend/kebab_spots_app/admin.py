@@ -1,5 +1,10 @@
 from django.contrib.gis import admin
-from .models import KebabSpot
+from .models import KebabSpot, KebabSpotPhoto
+
+
+class KebabSpotPhotoInline(admin.TabularInline):
+    model = KebabSpotPhoto
+    extra = 0
 
 
 @admin.register(KebabSpot)
@@ -8,3 +13,4 @@ class KebabSpotAdmin(admin.GISModelAdmin):
     list_display_links = ['id', 'name', 'user']
     search_fields = ['id', 'name', 'user__username']
     readonly_fields = ['average_rating', 'ratings_count']
+    inlines = [KebabSpotPhotoInline]

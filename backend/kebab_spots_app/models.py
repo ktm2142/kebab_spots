@@ -70,3 +70,13 @@ class KebabSpotRating(models.Model):
 
     def __str__(self):
         return f'{self.user.username} rated {self.spot.name} with {self.value} rating'
+
+
+class KebabSpotPhoto(models.Model):
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    spot = models.ForeignKey(KebabSpot, on_delete=models.CASCADE, related_name='photos')
+    photo = models.ImageField(upload_to='kebab_spots/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Photo of spot ID: {self.spot.name} by {self.user.username}'

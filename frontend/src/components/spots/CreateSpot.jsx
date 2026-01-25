@@ -39,6 +39,7 @@ const CreateSpot = () => {
     name: "",
     description: "",
   });
+  const [photos, setPhotos] = useState([])
   const [amenities, setAmenities] = useState({
     private_territory: false,
     shop_nearby: false,
@@ -76,20 +77,33 @@ const CreateSpot = () => {
       return;
     }
 
-    const kebabSpotData = {
-      name: form.name,
-      description: form.description,
-      ...amenities,
-      coordinates: {
-        type: "Point",
-        // GeoJSON format requires [longitude, latitude] order (opposite of Leaflet's [lat, lng])
-        // position.latlng from Leaflet has .lat and .lng properties, so we swap them here
-        coordinates: [position.lng, position.lat],
-      },
-    };
+    // We create formData because we can't send photos in JSON
+    const formData = new FormData()
+    formData.append('name', form.name)
+    formData.append('description', form.description)
+    
+    // adding amenities
+    Object.keys(amenities).forEach(key => {
+      formData.append(key, amenities[key])
+    })
+
+    // for coordinates we need to send JSON as a string
+    formData.append('coordinates', JSON.stringify({
+      type: "Point",
+      coordinates: [position.lng, position.lat]
+    }))
+
+    // adding photos
+    photos.forEach(photo => {
+      formData.append('photos', photo)
+    })
 
     try {
-      await privateApiClient.post("kebab_spots/create_spot/", kebabSpotData);
+      await privateApiClient.post("kebab_spots/create_spot/", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       navigate("/");
     } catch (error) {
       console.error("Error in SpotCreate(handleSubmit)", error);
@@ -115,6 +129,12 @@ const CreateSpot = () => {
           value={form.description}
           onChange={handleFormChange}
           placeholder="Description of point"
+        />
+        <input 
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => setPhotos(Array.from(e.target.files))}
         />
         <label>
           <input

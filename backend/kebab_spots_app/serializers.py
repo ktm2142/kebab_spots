@@ -1,9 +1,25 @@
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework import serializers
-from .models import KebabSpot, KebabSpotRating
+from .models import KebabSpot, KebabSpotRating, KebabSpotPhoto
 
 
-class KebabSpotSerializer(GeoFeatureModelSerializer):
+class KebabSpotPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KebabSpotPhoto
+        fields = ['id', 'photo', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class KebabSpotListSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = KebabSpot
+        geo_field = 'coordinates'
+        fields = ['id', 'coordinates', 'name', 'average_rating', 'ratings_count']
+
+
+class KebabSpotDetailSerializer(GeoFeatureModelSerializer):
+    photos = KebabSpotPhotoSerializer(many=True, read_only=True)
+
     # we tell DRF that this field will be calculated using the get_user_rating method
     user_rating = serializers.SerializerMethodField()
 
@@ -26,8 +42,9 @@ class KebabSpotSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = KebabSpot
         geo_field = 'coordinates'
-        fields = ['id', 'coordinates', 'user', 'name', 'description', 'created_at', 'updated_at',
+        fields = ['id', 'coordinates', 'user', 'name', 'description', 'photos', 'created_at', 'updated_at',
                   'average_rating', 'ratings_count', 'user_rating', 'private_territory', 'shop_nearby', 'gazebos',
                   'near_water', 'fishing', 'trash_cans', 'tables', 'benches', 'fire_pit', 'toilet',
                   'car_access']
-        read_only_fields = ['user', 'created_at', 'updated_at', 'average_rating', 'ratings_count', 'user_rating']
+        read_only_fields = ['user', 'created_at', 'updated_at', 'average_rating', 'ratings_count',
+                            'user_rating']

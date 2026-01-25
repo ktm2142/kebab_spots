@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from .models import KebabSpot, KebabSpotRating
-from .serializers import KebabSpotSerializer
+from .models import KebabSpot, KebabSpotRating, KebabSpotPhoto
+from .serializers import KebabSpotListSerializer, KebabSpotDetailSerializer
 
 
 def apply_filters(queryset, query_params):
@@ -38,7 +38,7 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
     and load all spots in standard radius which indicated in frontend.
     If coordinates are not given at all, we don't load ALL spots from DB.
     """
-    serializer_class = KebabSpotSerializer
+    serializer_class = KebabSpotListSerializer
     queryset = KebabSpot.objects.all()
 
     def get_queryset(self):
@@ -46,7 +46,7 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
 
         lat = self.request.query_params.get('lat')
         lon = self.request.query_params.get('lon')
-        radius = self.request.query_params.get('radius', 5)
+        radius = self.request.query_params.get('radius')
 
         if lat is None or lon is None:
             return KebabSpot.objects.none()
@@ -63,6 +63,7 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
         center_point = Point(lon, lat, srid=4326)
         qs = qs.filter(coordinates__distance_lte=(center_point, D(km=float(radius))))
         qs = apply_filters(qs, self.request.query_params)
+        # qs = qs.prefetch_related('photos')
         return qs
 
 
@@ -125,7 +126,7 @@ class SearchKebabSpotsAPIView(APIView):
             )
             nearby_spots = apply_filters(nearby_spots, request.query_params)
 
-            serializer = KebabSpotSerializer(nearby_spots, many=True, context={'request': request})
+            serializer = KebabSpotListSerializer(nearby_spots, many=True, context={'request': request})
             return Response({
                 # coordinates and name of town we searched
                 'location': {
@@ -151,12 +152,12 @@ class SearchKebabSpotsAPIView(APIView):
 
 
 class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
-    serializer_class = KebabSpotSerializer
+    serializer_class = KebabSpotDetailSerializer
     queryset = KebabSpot.objects.all()
 
 
 class UpdateKebabSpotAPIView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = KebabSpotSerializer
+    serializer_class = KebabSpotDetailSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -166,13 +167,34 @@ class UpdateKebabSpotAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CreateKebabSpotAPIView(generics.CreateAPIView):
-    serializer_class = KebabSpotSerializer
+    serializer_class = KebabSpotDetailSerializer
     permission_classes = [IsAuthenticated]
     queryset = KebabSpot.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        # creating the spot
+        spot = serializer.save(user=self.request.user)
 
+        # getting photos from request.FILES
+        photos = self.request.FILES.getlist('photos')
+
+        # checking amount of photos
+        if len(photos) > 10:
+            raise ValidationError({'Photos': 'Maximum photos for upload is 10'})
+
+        # checking size of every photo
+        max_size = 5 * 1024 * 1024
+
+        # creating object of every photo.
+        for photo in photos:
+            if photo.size > max_size:
+                raise ValidationError({'Photos': f'Photo {photo.name} is too large. Must be not bigger that 5 mb'})
+            else:
+                KebabSpotPhoto.objects.create(
+                    spot=spot,
+                    user=self.request.user,
+                    photo=photo
+                )
 
 class RateKebabSpotAPIView(APIView):
     permission_classes = [IsAuthenticated]
