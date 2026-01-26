@@ -151,21 +151,6 @@ class SearchKebabSpotsAPIView(APIView):
             )
 
 
-class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
-    serializer_class = KebabSpotDetailSerializer
-    queryset = KebabSpot.objects.all()
-
-
-class UpdateKebabSpotAPIView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = KebabSpotDetailSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return KebabSpot.objects.filter(
-            user=self.request.user
-        )
-
-
 class CreateKebabSpotAPIView(generics.CreateAPIView):
     serializer_class = KebabSpotDetailSerializer
     permission_classes = [IsAuthenticated]
@@ -195,6 +180,59 @@ class CreateKebabSpotAPIView(generics.CreateAPIView):
                     user=self.request.user,
                     photo=photo
                 )
+
+
+class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
+    serializer_class = KebabSpotDetailSerializer
+    queryset = KebabSpot.objects.all()
+
+
+class UpdateKebabSpotAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = KebabSpotDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return KebabSpot.objects.filter(
+            user=self.request.user
+        )
+
+    def perform_update(self, serializer):
+        # updating the spot
+        spot = serializer.save()
+
+        # getting photos from request.FILES
+        photos = self.request.FILES.getlist('photos')
+
+        #if photos not given just do nothing
+        if not photos:
+            return
+
+        # checking amount of photos
+        if len(photos) > 10:
+            raise ValidationError({'Photos': 'Maximum photos for upload is 10'})
+
+        # checking size of every photo
+        max_size = 5 * 1024 * 1024
+
+        # creating object of every photo.
+        for photo in photos:
+            if photo.size > max_size:
+                raise ValidationError({'Photos': f'Photo {photo.name} is too large. Must be not bigger that 5 mb'})
+            else:
+                KebabSpotPhoto.objects.create(
+                    spot=spot,
+                    user=self.request.user,
+                    photo=photo
+                )
+
+
+class DeleteKebabSpotPhotoAPIView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = KebabSpotPhoto.objects.all()
+
+    def get_queryset(self):
+        return KebabSpotPhoto.objects.filter(user=self.request.user)
+
 
 class RateKebabSpotAPIView(APIView):
     permission_classes = [IsAuthenticated]

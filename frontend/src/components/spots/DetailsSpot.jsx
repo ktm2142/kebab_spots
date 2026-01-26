@@ -119,6 +119,21 @@ const DetailsSpot = () => {
       <p>Fire pits: {spot.properties.fire_pit ? "Yes" : "No"}</p>
       <p>Toilet: {spot.properties.toilet ? "Yes" : "No"}</p>
       <p>Car access: {spot.properties.car_access ? "Yes" : "No"}</p>
+      {spot.properties.photos?.length > 0 && (
+        <div>
+          <h3>Photos</h3>
+          <div>
+            {spot.properties.photos.map((photo) => (
+              <a href={photo.photo} key={photo.id} target="_blank" rel="noopener noreferer">
+                <img
+                src={photo.photo}
+                alt={`Photoof  ${spot.properties.name}`}
+              />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="rating">
         <input
           type="radio"

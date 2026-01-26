@@ -19,6 +19,7 @@ const UpdateSpot = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [spotData, setSpotData] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -42,7 +43,7 @@ const UpdateSpot = () => {
       try {
         setLoading(true);
         const response = await privateApiClient.get(
-          `kebab_spots/spot_update/${id}`
+          `kebab_spots/spot_update/${id}`,
         );
         setSpotData(response.data);
       } catch (error) {
@@ -93,12 +94,43 @@ const UpdateSpot = () => {
    * Note: Coordinates cannot be updated - only name and description can be changed.
    * After successful update, redirects to spot details page.
    */
-  const updateKebabSpotData = async (data) => {
+  const updateKebabSpotData = async () => {
+    const formData = new FormData();
+
+    // updating amenities
+    Object.keys(form).forEach((key) => {
+      formData.append(key, form[key]);
+    });
+
+    // adding photos
+    photos.forEach((photo) => {
+      formData.append("photos", photo);
+    });
+
     try {
-      await privateApiClient.patch(`kebab_spots/spot_update/${id}/`, data);
+      await privateApiClient.patch(`kebab_spots/spot_update/${id}/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       navigate(`/details_spot/${id}`);
     } catch (error) {
       console.error("Error in updateKebabSpotData", error);
+    }
+  };
+
+  const handleDeletePhoto = async (photoId) => {
+    if (!window.confirm("Are you sure you want to delete this photo?")) {
+      return;
+    }
+    try {
+      await privateApiClient.delete(`kebab_spots/delete_photo/${photoId}/`);
+      const response = await privateApiClient.get(
+        `kebab_spots/spot_update/${id}/`,
+      );
+      setSpotData(response.data);
+    } catch (error) {
+      console.error("Error in handleDeletePhoto", error);
     }
   };
 
@@ -123,7 +155,7 @@ const UpdateSpot = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     updateKebabSpotData({
-      ...form
+      ...form,
     });
   };
 
@@ -147,16 +179,42 @@ const UpdateSpot = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <input
-         name="name"
-          value={form.name} 
-          onChange={handleTextChange} 
-          />
+        <input name="name" value={form.name} onChange={handleTextChange} />
         <textarea
           name="description"
           value={form.description}
           onChange={handleTextChange}
         />
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => setPhotos(Array.from(e.target.files))}
+        />
+        {spotData.properties.photos?.length > 0 && (
+          <div>
+            <h3>Photos</h3>
+            <div>
+              {spotData.properties.photos.map((photo) => (
+                <div key={photo.id}>
+                  <a
+                    href={photo.photo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={photo.photo}
+                      alt={`Photo of ${spotData.properties.name}`}
+                    />
+                  </a>
+                  <button type="button" onClick={() => handleDeletePhoto(photo.id)}>
+                    Delete Photo
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <label>
           <input
             type="checkbox"
