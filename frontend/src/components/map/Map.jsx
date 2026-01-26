@@ -195,11 +195,21 @@ const Map = () => {
   }, [radius, coordinates]);
 
   return (
-    <>
-      <div>
+    <div className="map-layout">
+      <div className="map-controls">
+        <button onClick={handleUserLocation}>My Location</button>
         <button onClick={handleCreateSpot}>Create Kebab Spot</button>
-        <button onClick={handleUserLocation}>My location</button>
-        <span>Radius:</span>
+
+        <form onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Enter city, town or village"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button type="submit">Search</button>
+        </form>
+        <span>Radius of visible spots:</span>
         <select
           value={radius}
           onChange={(e) => setRadius(Number(e.target.value))}
@@ -211,22 +221,13 @@ const Map = () => {
           ))}
         </select>
 
-        <form onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="Enter city, town or village"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button type="submit">Search</button>
-        </form>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             fetchSpots();
           }}
-        >
-          <h3>Filter spots by amenities</h3>
+        > 
+          <h3>Filter</h3>
           <label>
             Minimal rating:
             <select value={rating} onChange={(e) => setRating(e.target.value)}>
@@ -238,121 +239,127 @@ const Map = () => {
               <option value="5">5+</option>
             </select>
           </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.private_territory}
-              onChange={() => handleAmenityChange("private_territory")}
-            />
-            Private territory
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.shop_nearby}
-              onChange={() => handleAmenityChange("shop_nearby")}
-            />
-            Shop nearby
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.gazebos}
-              onChange={() => handleAmenityChange("gazebos")}
-            />
-            Gazebos
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.near_water}
-              onChange={() => handleAmenityChange("near_water")}
-            />
-            Near water
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.fishing}
-              onChange={() => handleAmenityChange("fishing")}
-            />
-            Fishing
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.trash_cans}
-              onChange={() => handleAmenityChange("trash_cans")}
-            />
-            Trash cans
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.tables}
-              onChange={() => handleAmenityChange("tables")}
-            />
-            Tables
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.benches}
-              onChange={() => handleAmenityChange("benches")}
-            />
-            Benches
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.fire_pit}
-              onChange={() => handleAmenityChange("fire_pit")}
-            />
-            Fire pit
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.toilet}
-              onChange={() => handleAmenityChange("toilet")}
-            />
-            Toilet
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={amenities.car_access}
-              onChange={() => handleAmenityChange("car_access")}
-            />
-            Car access
-          </label>
+          <br />
+          <div className="amenities-grid">
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.private_territory}
+                onChange={() => handleAmenityChange("private_territory")}
+              />
+              Private territory
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.shop_nearby}
+                onChange={() => handleAmenityChange("shop_nearby")}
+              />
+              Shop nearby
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.gazebos}
+                onChange={() => handleAmenityChange("gazebos")}
+              />
+              Gazebos
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.near_water}
+                onChange={() => handleAmenityChange("near_water")}
+              />
+              Near water
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.fishing}
+                onChange={() => handleAmenityChange("fishing")}
+              />
+              Fishing
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.trash_cans}
+                onChange={() => handleAmenityChange("trash_cans")}
+              />
+              Trash cans
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.tables}
+                onChange={() => handleAmenityChange("tables")}
+              />
+              Tables
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.benches}
+                onChange={() => handleAmenityChange("benches")}
+              />
+              Benches
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.fire_pit}
+                onChange={() => handleAmenityChange("fire_pit")}
+              />
+              Fire pit
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.toilet}
+                onChange={() => handleAmenityChange("toilet")}
+              />
+              Toilet
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.car_access}
+                onChange={() => handleAmenityChange("car_access")}
+              />
+              Car access
+            </label>
+          </div>
           <button type="submit">Apply filter</button>
         </form>
       </div>
-      <BaseMap center={mapCenter}>
-        <MapTracker setCenterRef={lastMapPosition} />
-        {spots.map((spot) => (
-          <Marker
-            key={spot.id}
-            position={[
-              // GeoJSON uses [longitude, latitude] format, but Leaflet expects [latitude, longitude]
-              // So we need to swap the coordinates: coordinates[1] is lat, coordinates[0] is lon
-              spot.geometry.coordinates[1],
-              spot.geometry.coordinates[0],
-            ]}
-            eventHandlers={{
-              click: () => navigate(`/details_spot/${spot.id}/`),
-            }}
-          >
-            <Tooltip>
-              {spot.properties.name}
-              <br />
-              Rating: {spot.properties.average_rating}
-            </Tooltip>
-          </Marker>
-        ))}
-      </BaseMap>
-    </>
+
+      <div className="map-column">
+        <BaseMap center={mapCenter}>
+          <MapTracker setCenterRef={lastMapPosition} />
+          {spots.map((spot) => (
+            <Marker
+              key={spot.id}
+              position={[
+                // GeoJSON uses [longitude, latitude] format, but Leaflet expects [latitude, longitude]
+                // So we need to swap the coordinates: coordinates[1] is lat, coordinates[0] is lon
+                spot.geometry.coordinates[1],
+                spot.geometry.coordinates[0],
+              ]}
+              eventHandlers={{
+                click: () => navigate(`/details_spot/${spot.id}/`),
+              }}
+            >
+              <Tooltip>
+                {spot.properties.name}
+                <br />
+                Rating: {spot.properties.average_rating}
+              </Tooltip>
+            </Marker>
+          ))}
+        </BaseMap>
+      </div>
+    </div>
   );
 };
 

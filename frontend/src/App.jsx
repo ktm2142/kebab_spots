@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Route, useNavigate, useLocation, Routes } from "react-router-dom";
-import "./App.css";
+import "../src/styles/App.css";
 import Registration from "./components/auth/Registration";
 import Login from "./components/auth/Login";
 import { AuthContext } from "./contexts/AuthContext";
@@ -21,43 +21,46 @@ function App() {
 
   return (
     <>
-      <div>
-        {!mainPage && (
-          <button onClick={() => navigate("/")}>To main page</button>
-        )}
-      </div>
-      <div>
-        {!user ? (
-          <div>
-            <button
-              onClick={() =>
-                registrationPage ? navigate("/") : navigate("/registration")
-              }
-            >
-              {registrationPage ? "Close" : "Registration"}
+      <header className="app-header">
+        <div className="nav-left">
+          {!mainPage && (
+            <button className="primary" onClick={() => navigate("/")}>
+              To main page
             </button>
-            <button
-              onClick={() => (loginPage ? navigate("/") : navigate("/login"))}
-            >
-              {loginPage ? "Close" : "login"}
-            </button>
-          </div>
-        ) : (
-          <div>
-            <button
-              onClick={() =>
-                userProfilePage ? navigate("/") : navigate("/user_profile")
-              }
-            >
-              {userProfilePage ? "Close" : "Profile"}
-            </button>
-            <div>
+          )}
+        </div>
+        <h1 className="header-title">Kebab Spots</h1>
+        <div className="nav-right">
+          {!user ? (
+            <>
+              <button
+                onClick={() =>
+                  registrationPage ? navigate("/") : navigate("/registration")
+                }
+              >
+                {registrationPage ? "Close" : "Registration"}
+              </button>
+              <button
+                onClick={() => (loginPage ? navigate("/") : navigate("/login"))}
+              >
+                {loginPage ? "Close" : "Login"}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() =>
+                  userProfilePage ? navigate("/") : navigate("/user_profile")
+                }
+              >
+                {userProfilePage ? "Close" : "Profile"}
+              </button>
               <button onClick={logout}>Logout</button>
-            </div>
-          </div>
-        )}
-      </div>
-      <div>
+            </>
+          )}
+        </div>
+      </header>
+      <main className="app-main">
         <Routes>
           <Route path="/" element={<Map />} />
           <Route path="/registration" element={<Registration />} />
@@ -67,7 +70,7 @@ function App() {
           <Route path="/details_spot/:id/" element={<DetailsSpot />} />
           <Route path="/update_spot/:id/" element={<UpdateSpot />} />
         </Routes>
-      </div>
+      </main>
     </>
   );
 }

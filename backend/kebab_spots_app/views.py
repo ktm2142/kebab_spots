@@ -232,7 +232,7 @@ class DeleteKebabSpotPhotoAPIView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return KebabSpotPhoto.objects.filter(user=self.request.user)
-
+    
 
 class RateKebabSpotAPIView(APIView):
     permission_classes = [IsAuthenticated]

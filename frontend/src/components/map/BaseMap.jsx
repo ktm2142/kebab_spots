@@ -65,7 +65,7 @@ const BaseMap = ({ center, style, zoom, children }) => {
     <MapContainer
       center={mapCenter}
       zoom={zoom || 13}
-      style={style || { height: "500px", width: "500px" }}
+      style={style || { height: "500px", width: "100%" }}
     >
       {/* Dynamically updates map center when center prop changes */}
       <ChangeMapLocation center={mapCenter} zoom={zoom} />

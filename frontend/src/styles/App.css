@@ -1,0 +1,158 @@
+/* ========= Root ========= */
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+/* ========= Header ========= */
+.app-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0.5rem 1.5rem;
+  background-color: var(--header-dark);
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1; 
+  color: #ffffff;
+}
+
+/* ========= Navigation ========= */
+.nav-right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.nav-right button {
+  min-width: 120px;
+}
+
+.nav-left {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* ========= Main content ========= */
+.app-main {
+  padding: 1rem;
+}
+
+/* ========= Primary buttons ========= */
+button.primary {
+  background-color: var(--primary);
+}
+
+button.primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.map-layout {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.map-column {
+  flex: 1;
+  min-width: 0; /* важливо для flex, щоб карта нормально стискалась */
+}
+
+.map-controls {
+  width: 360px;
+  padding: 1rem;
+  background: #ffffff;
+  /* border-radius: 8px; */
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Все текстові поля і селекти на всю ширину */
+.map-controls input,
+.map-controls select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Всі кнопки на всю ширину (крім тих, що ми зробимо "рядком") */
+.map-controls button {
+  width: 100%;
+}
+
+
+.map-controls form:last-of-type label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.map-controls form:last-of-type input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.amenities-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+/* Кожен рядок чекбокса */
+.amenities-grid label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* #root {
+  margin: 0;
+  padding: 0;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 1rem 2rem; 
+  background-color: #000000;
+}
+
+.nav-left {
+  display: flex;
+}
+
+.nav-right {
+  display: flex;
+  gap: 0.5rem; 
+}
+
+.nav-right button {
+  min-width: 120px;
+}
+
+.app-main {
+  padding: 2rem;
+} */
