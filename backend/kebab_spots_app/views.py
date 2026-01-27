@@ -1,4 +1,5 @@
 import requests
+from PIL import Image
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -7,6 +8,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
+
+from .mixins import CheckPhotosMixin, FiltersMixin
 from .models import KebabSpot, KebabSpotRating, KebabSpotPhoto
 from .serializers import KebabSpotListSerializer, KebabSpotDetailSerializer
 
@@ -31,7 +34,7 @@ def apply_filters(queryset, query_params):
     return queryset
 
 
-class ListKebabSpotsAPIView(generics.ListAPIView):
+class ListKebabSpotsAPIView(FiltersMixin, generics.ListAPIView):
     """
     Getting latitude, longitude and radius from query_params, and loading spots in given radius.
     If data in query_params is not valid we return basic queryset,
@@ -62,12 +65,11 @@ class ListKebabSpotsAPIView(generics.ListAPIView):
 
         center_point = Point(lon, lat, srid=4326)
         qs = qs.filter(coordinates__distance_lte=(center_point, D(km=float(radius))))
-        qs = apply_filters(qs, self.request.query_params)
-        # qs = qs.prefetch_related('photos')
+        qs = self.apply_filters(qs)
         return qs
 
 
-class SearchKebabSpotsAPIView(APIView):
+class SearchKebabSpotsAPIView(FiltersMixin, APIView):
     """
     Getting name of city/village and radius from frontend.
     Making search request to openstreetmap.
@@ -124,7 +126,7 @@ class SearchKebabSpotsAPIView(APIView):
             nearby_spots = KebabSpot.objects.filter(
                 coordinates__distance_lte=(center_point, D(km=float(radius)))
             )
-            nearby_spots = apply_filters(nearby_spots, request.query_params)
+            nearby_spots = self.apply_filters(nearby_spots)
 
             serializer = KebabSpotListSerializer(nearby_spots, many=True, context={'request': request})
             return Response({
@@ -151,35 +153,20 @@ class SearchKebabSpotsAPIView(APIView):
             )
 
 
-class CreateKebabSpotAPIView(generics.CreateAPIView):
+class CreateKebabSpotAPIView(CheckPhotosMixin, generics.CreateAPIView):
     serializer_class = KebabSpotDetailSerializer
     permission_classes = [IsAuthenticated]
     queryset = KebabSpot.objects.all()
 
     def perform_create(self, serializer):
+        photos = self.get_photos()
+        if photos:
+            self.validate_photos(photos)
+
         # creating the spot
         spot = serializer.save(user=self.request.user)
 
-        # getting photos from request.FILES
-        photos = self.request.FILES.getlist('photos')
-
-        # checking amount of photos
-        if len(photos) > 10:
-            raise ValidationError({'Photos': 'Maximum photos for upload is 10'})
-
-        # checking size of every photo
-        max_size = 5 * 1024 * 1024
-
-        # creating object of every photo.
-        for photo in photos:
-            if photo.size > max_size:
-                raise ValidationError({'Photos': f'Photo {photo.name} is too large. Must be not bigger that 5 mb'})
-            else:
-                KebabSpotPhoto.objects.create(
-                    spot=spot,
-                    user=self.request.user,
-                    photo=photo
-                )
+        self.save_photos(spot, photos)
 
 
 class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
@@ -187,7 +174,7 @@ class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
     queryset = KebabSpot.objects.all()
 
 
-class UpdateKebabSpotAPIView(generics.RetrieveUpdateDestroyAPIView):
+class UpdateKebabSpotAPIView(CheckPhotosMixin, generics.RetrieveUpdateDestroyAPIView):
     serializer_class = KebabSpotDetailSerializer
     permission_classes = [IsAuthenticated]
 
@@ -197,33 +184,14 @@ class UpdateKebabSpotAPIView(generics.RetrieveUpdateDestroyAPIView):
         )
 
     def perform_update(self, serializer):
-        # updating the spot
-        spot = serializer.save()
+        photos = self.get_photos()
+        if photos:
+            self.validate_photos(photos)
 
-        # getting photos from request.FILES
-        photos = self.request.FILES.getlist('photos')
+        # creating the spot
+        spot = serializer.save(user=self.request.user)
 
-        #if photos not given just do nothing
-        if not photos:
-            return
-
-        # checking amount of photos
-        if len(photos) > 10:
-            raise ValidationError({'Photos': 'Maximum photos for upload is 10'})
-
-        # checking size of every photo
-        max_size = 5 * 1024 * 1024
-
-        # creating object of every photo.
-        for photo in photos:
-            if photo.size > max_size:
-                raise ValidationError({'Photos': f'Photo {photo.name} is too large. Must be not bigger that 5 mb'})
-            else:
-                KebabSpotPhoto.objects.create(
-                    spot=spot,
-                    user=self.request.user,
-                    photo=photo
-                )
+        self.save_photos(spot, photos)
 
 
 class DeleteKebabSpotPhotoAPIView(generics.DestroyAPIView):
@@ -232,7 +200,7 @@ class DeleteKebabSpotPhotoAPIView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return KebabSpotPhoto.objects.filter(user=self.request.user)
-    
+
 
 class RateKebabSpotAPIView(APIView):
     permission_classes = [IsAuthenticated]
