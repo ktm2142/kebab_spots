@@ -65,18 +65,28 @@ button.primary:hover {
   width: 360px;
   padding: 1rem;
   background: #ffffff;
-  /* border-radius: 8px; */
 
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* Все текстові поля і селекти на всю ширину */
+/* THINK ABOUT NAMING THIS BLOCK */
 .map-controls input,
 .map-controls select {
   width: 100%;
   box-sizing: border-box;
+}
+
+.map-controls textarea {
+  min-height: 100px;
+  width: 100%;
+}
+
+.map-controls p {
+  word-break: break-all;
+  margin: 0px 0;
+  /* line-height: 1.2; */
 }
 
 /* Всі кнопки на всю ширину (крім тих, що ми зробимо "рядком") */
@@ -113,46 +123,39 @@ button.primary:hover {
   font-size: 0.95rem;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* #root {
-  margin: 0;
-  padding: 0;
+/* ====== Photos ====== */
+.spot-photos {
+  margin-top: 1rem;
+  background: #ffffff;
+  padding: 1rem;
 }
 
-.app-header {
-  display: flex;
-  justify-content: space-between; 
-  align-items: center; 
-  padding: 1rem 2rem; 
-  background-color: #000000;
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
 }
 
-.nav-left {
-  display: flex;
+.photos-grid img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
-.nav-right {
-  display: flex;
-  gap: 0.5rem; 
+.photos-grid button {
+  width: 100%;
 }
 
-.nav-right button {
-  min-width: 120px;
-}
 
-.app-main {
-  padding: 2rem;
-} */
+
+/* Error message */
+.error-message {
+  color: #b00020;
+  background-color: #ffe6e6;
+  border: 1px solid #ffb3b3;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-size: 14px;
+}

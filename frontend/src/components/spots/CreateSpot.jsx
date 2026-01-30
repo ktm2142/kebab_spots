@@ -39,7 +39,8 @@ const CreateSpot = () => {
     name: "",
     description: "",
   });
-  const [photos, setPhotos] = useState([])
+  const [photos, setPhotos] = useState([]);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [amenities, setAmenities] = useState({
     private_territory: false,
     shop_nearby: false,
@@ -78,35 +79,41 @@ const CreateSpot = () => {
     }
 
     // We create formData because we can't send photos in JSON
-    const formData = new FormData()
-    formData.append('name', form.name)
-    formData.append('description', form.description)
-    
+    const formData = new FormData();
+    formData.append("name", form.name);
+    formData.append("description", form.description);
+
     // adding amenities
-    Object.keys(amenities).forEach(key => {
-      formData.append(key, amenities[key])
-    })
+    Object.keys(amenities).forEach((key) => {
+      formData.append(key, amenities[key]);
+    });
 
     // for coordinates we need to send JSON as a string
-    formData.append('coordinates', JSON.stringify({
-      type: "Point",
-      coordinates: [position.lng, position.lat]
-    }))
+    formData.append(
+      "coordinates",
+      JSON.stringify({
+        type: "Point",
+        coordinates: [position.lng, position.lat],
+      }),
+    );
 
     // adding photos
-    photos.forEach(photo => {
-      formData.append('photos', photo)
-    })
+    photos.forEach((photo) => {
+      formData.append("photos", photo);
+    });
 
     try {
       await privateApiClient.post("kebab_spots/create_spot/", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       navigate("/");
     } catch (error) {
       console.error("Error in SpotCreate(handleSubmit)", error);
+      if (error.response?.data?.Photos) {
+        setErrorMsg(error.response.data.Photos);
+      }
       if (error.response?.status === 401) {
         alert("You are not authorised! Please log in to your account.");
       }
@@ -114,132 +121,133 @@ const CreateSpot = () => {
   };
 
   return (
-    <div>
-      <h1>Add Spot</h1>
+    <div className="map-layout">
+      <div className="map-controls">
+        <h1>Add Spot</h1>
+        {!position && <p>Click on the map to set the location</p>}
+        {errorMsg && <div className="error-message">{errorMsg}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleFormChange}
-          placeholder="Name of point"
-        />
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleFormChange}
-          placeholder="Description of point"
-        />
-        <input 
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) => setPhotos(Array.from(e.target.files))}
-        />
-        <label>
+        <form onSubmit={handleSubmit}>
           <input
-            type="checkbox"
-            checked={amenities.private_territory}
-            onChange={() => handleAmenityChange("private_territory")}
+            name="name"
+            value={form.name}
+            onChange={handleFormChange}
+            placeholder="Name of the spot"
           />
-          Private territory
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.shop_nearby}
-            onChange={() => handleAmenityChange("shop_nearby")}
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleFormChange}
+            placeholder="Description of the spot"
           />
-          Shop nearby
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.gazebos}
-            onChange={() => handleAmenityChange("gazebos")}
-          />
-          Gazebos
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.near_water}
-            onChange={() => handleAmenityChange("near_water")}
-          />
-          Near water
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.fishing}
-            onChange={() => handleAmenityChange("fishing")}
-          />
-          Fishing
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.trash_cans}
-            onChange={() => handleAmenityChange("trash_cans")}
-          />
-          Trash cans
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.tables}
-            onChange={() => handleAmenityChange("tables")}
-          />
-          Tables
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.benches}
-            onChange={() => handleAmenityChange("benches")}
-          />
-          Benches
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.fire_pit}
-            onChange={() => handleAmenityChange("fire_pit")}
-          />
-          Fire pit
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.toilet}
-            onChange={() => handleAmenityChange("toilet")}
-          />
-          Toilet
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={amenities.car_access}
-            onChange={() => handleAmenityChange("car_access")}
-          />
-          Car access
-        </label>
-
-        <button type="submit">Save</button>
-      </form>
-
-      <p>Click on the map to set the location</p>
-
-      <BaseMap center={initialCenter}>
-        <LocationMarker setPos={setPosition} />
-        {position && <Marker position={position} />}
-      </BaseMap>
-
-      {position && (
-        <p>
-          Chosen coordinates: {position.lat}, {position.lng}
-        </p>
-      )}
+          <label>
+            Photos:
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => setPhotos(Array.from(e.target.files))}
+            />
+          </label>
+          <div className="amenities-grid">
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.private_territory}
+                onChange={() => handleAmenityChange("private_territory")}
+              />
+              Private territory
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.shop_nearby}
+                onChange={() => handleAmenityChange("shop_nearby")}
+              />
+              Shop nearby
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.gazebos}
+                onChange={() => handleAmenityChange("gazebos")}
+              />
+              Gazebos
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.near_water}
+                onChange={() => handleAmenityChange("near_water")}
+              />
+              Near water
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.fishing}
+                onChange={() => handleAmenityChange("fishing")}
+              />
+              Fishing
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.trash_cans}
+                onChange={() => handleAmenityChange("trash_cans")}
+              />
+              Trash cans
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.tables}
+                onChange={() => handleAmenityChange("tables")}
+              />
+              Tables
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.benches}
+                onChange={() => handleAmenityChange("benches")}
+              />
+              Benches
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.fire_pit}
+                onChange={() => handleAmenityChange("fire_pit")}
+              />
+              Fire pit
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.toilet}
+                onChange={() => handleAmenityChange("toilet")}
+              />
+              Toilet
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={amenities.car_access}
+                onChange={() => handleAmenityChange("car_access")}
+              />
+              Car access
+            </label>
+          </div>
+          <button type="submit">Save</button>
+        </form>
+      </div>
+      <div className="map-column">
+        <BaseMap center={initialCenter}>
+          <LocationMarker setPos={setPosition} />
+          {position && <Marker position={position} />}
+        </BaseMap>
+      </div>
     </div>
   );
 };

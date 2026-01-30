@@ -177,155 +177,161 @@ const UpdateSpot = () => {
   if (!spotData) return <p>Spot was deleted or had too many complaints.</p>;
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <input name="name" value={form.name} onChange={handleTextChange} />
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleTextChange}
-        />
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) => setPhotos(Array.from(e.target.files))}
-        />
-        {spotData.properties.photos?.length > 0 && (
-          <div>
-            <h3>Photos</h3>
-            <div>
-              {spotData.properties.photos.map((photo) => (
-                <div key={photo.id}>
-                  <a
-                    href={photo.photo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <img
-                      src={photo.photo}
-                      alt={`Photo of ${spotData.properties.name}`}
-                    />
-                  </a>
-                  <button type="button" onClick={() => handleDeletePhoto(photo.id)}>
-                    Delete Photo
-                  </button>
-                </div>
-              ))}
+    <div className="map-layout">
+      <div className="map-controls">
+        <h2>{spotData.properties.name}</h2>
+        <p>{spotData.properties.description}</p>
+        <form onSubmit={handleSubmit}>
+          <input name="name" value={form.name} onChange={handleTextChange} />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleTextChange}
+          />
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => setPhotos(Array.from(e.target.files))}
+          />
+
+          <label>
+            <input
+              type="checkbox"
+              name="private_territory"
+              checked={form.private_territory}
+              onChange={handleCheboxChange}
+            />
+            Private territory
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="shop_nearby"
+              checked={form.shop_nearby}
+              onChange={handleCheboxChange}
+            />
+            Shop nearby
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="gazebos"
+              checked={form.gazebos}
+              onChange={handleCheboxChange}
+            />
+            Gazebos
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="near_water"
+              checked={form.near_water}
+              onChange={handleCheboxChange}
+            />
+            Near water
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="fishing"
+              checked={form.fishing}
+              onChange={handleCheboxChange}
+            />
+            Can fishing
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="trash_cans"
+              checked={form.trash_cans}
+              onChange={handleCheboxChange}
+            />
+            Trash cans
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="tables"
+              checked={form.tables}
+              onChange={handleCheboxChange}
+            />
+            Tables
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="benches"
+              checked={form.benches}
+              onChange={handleCheboxChange}
+            />
+            Benches
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="fire_pit"
+              checked={form.fire_pit}
+              onChange={handleCheboxChange}
+            />
+            Fire pit
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="toilet"
+              checked={form.toilet}
+              onChange={handleCheboxChange}
+            />
+            Toilet
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="car_access"
+              checked={form.car_access}
+              onChange={handleCheboxChange}
+            />
+            Car access
+          </label>
+
+          <button type="submit">Save</button>
+        </form>
+        <button onClick={() => deleteKebabSpot(id)}>Delete Spot</button>
+      </div>
+      <div className="map-column">
+        <BaseMap center={spotCoords} zoom={13}>
+          <Marker position={spotCoords}>
+            <Popup>{spotData.properties.name}</Popup>
+          </Marker>
+        </BaseMap>
+                  {spotData.properties.photos?.length > 0 && (
+            <div className="spot-photos">
+              <div className="photos-grid">
+                {spotData.properties.photos.map((photo) => (
+                  <div key={photo.id}>
+                    <a
+                      href={photo.photo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={photo.photo}
+                        alt={`Photo of ${spotData.properties.name}`}
+                      />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePhoto(photo.id)}
+                    >
+                      Delete Photo
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-        <label>
-          <input
-            type="checkbox"
-            name="private_territory"
-            checked={form.private_territory}
-            onChange={handleCheboxChange}
-          />
-          Private territory
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="shop_nearby"
-            checked={form.shop_nearby}
-            onChange={handleCheboxChange}
-          />
-          Shop nearby
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="gazebos"
-            checked={form.gazebos}
-            onChange={handleCheboxChange}
-          />
-          Gazebos
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="near_water"
-            checked={form.near_water}
-            onChange={handleCheboxChange}
-          />
-          Near water
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="fishing"
-            checked={form.fishing}
-            onChange={handleCheboxChange}
-          />
-          Can fishing
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="trash_cans"
-            checked={form.trash_cans}
-            onChange={handleCheboxChange}
-          />
-          Trash cans
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="tables"
-            checked={form.tables}
-            onChange={handleCheboxChange}
-          />
-          Tables
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="benches"
-            checked={form.benches}
-            onChange={handleCheboxChange}
-          />
-          Benches
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="fire_pit"
-            checked={form.fire_pit}
-            onChange={handleCheboxChange}
-          />
-          Fire pit
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="toilet"
-            checked={form.toilet}
-            onChange={handleCheboxChange}
-          />
-          Toilet
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="car_access"
-            checked={form.car_access}
-            onChange={handleCheboxChange}
-          />
-          Car access
-        </label>
-
-        <button type="submit">Save</button>
-      </form>
-
-      <h2>{spotData.properties.name}</h2>
-      <p>{spotData.properties.description}</p>
-      <button onClick={() => deleteKebabSpot(id)}>Delete Spot</button>
-      <BaseMap center={spotCoords} zoom={13}>
-        <Marker position={spotCoords}>
-          <Popup>{spotData.properties.name}</Popup>
-        </Marker>
-      </BaseMap>
+          )}
+      </div>
     </div>
   );
 };

@@ -97,106 +97,118 @@ const DetailsSpot = () => {
     : spot.properties.user_rating;
 
   return (
-    <div>
-      {/* Only show "Update Spot" button if current user is the spot owner */}
-      {isOwner && (
-        <Link to={`/update_spot/${id}/`}>
-          <button>Update Spot</button>
-        </Link>
-      )}
-      <h2>Name: {spot.properties.name}</h2>
-      <p>Description: {spot.properties.description}</p>
-      <p>
-        Private territory: {spot.properties.private_territory ? "Yes" : "No"}
-      </p>
-      <p>Shops nearby: {spot.properties.shop_nearby ? "Yes" : "No"}</p>
-      <p>Gazebos: {spot.properties.gazebos ? "Yes" : "No"}</p>
-      <p>Near water: {spot.properties.near_water ? "Yes" : "No"}</p>
-      <p>Can fishing: {spot.properties.fishing ? "Yes" : "No"}</p>
-      <p>Trash cans: {spot.properties.trash_cans ? "Yes" : "No"}</p>
-      <p>Tables: {spot.properties.tables ? "Yes" : "No"}</p>
-      <p>Benches: {spot.properties.benches ? "Yes" : "No"}</p>
-      <p>Fire pits: {spot.properties.fire_pit ? "Yes" : "No"}</p>
-      <p>Toilet: {spot.properties.toilet ? "Yes" : "No"}</p>
-      <p>Car access: {spot.properties.car_access ? "Yes" : "No"}</p>
-      {spot.properties.photos?.length > 0 && (
-        <div>
-          <h3>Photos</h3>
-          <div>
-            {spot.properties.photos.map((photo) => (
-              <a href={photo.photo} key={photo.id} target="_blank" rel="noopener noreferer">
-                <img
-                src={photo.photo}
-                alt={`Photoof  ${spot.properties.name}`}
-              />
-              </a>
-            ))}
+    <div className="map-layout">
+      <div className="map-controls">
+        {/* Only show "Update Spot" button if current user is the spot owner */}
+        {isOwner && (
+          <Link to={`/update_spot/${id}/`}>
+            <button>Update Spot</button>
+          </Link>
+        )}
+        <h2>{spot.properties.name}</h2>
+        <p>{spot.properties.description}</p>
+        <div className="rating-box">
+          <div className="rating">
+            <input
+              type="radio"
+              checked={currentRating === 5}
+              id="star5"
+              name="rating"
+              value="5"
+              onChange={(e) => handleAddRating(e.target.value)}
+            />
+            <label htmlFor="star5"></label>
+            <input
+              type="radio"
+              checked={currentRating === 4}
+              id="star4"
+              name="rating"
+              value="4"
+              onChange={(e) => handleAddRating(e.target.value)}
+            />
+            <label htmlFor="star4"></label>
+            <input
+              type="radio"
+              checked={currentRating === 3}
+              id="star3"
+              name="rating"
+              value="3"
+              onChange={(e) => handleAddRating(e.target.value)}
+            />
+            <label htmlFor="star3"></label>
+            <input
+              type="radio"
+              checked={currentRating === 2}
+              id="star2"
+              name="rating"
+              value="2"
+              onChange={(e) => handleAddRating(e.target.value)}
+            />
+            <label htmlFor="star2"></label>
+            <input
+              type="radio"
+              checked={currentRating === 1}
+              id="star1"
+              name="rating"
+              value="1"
+              onChange={(e) => handleAddRating(e.target.value)}
+            />
+            <label htmlFor="star1"></label>
           </div>
+          {ratingNumber && <p>You rated: {ratingNumber.user_rating}</p>}
+          {ratingNumber ? (
+            <p>Average rating: {ratingNumber.average_rating}</p>
+          ) : (
+            <p>Average rating: {spot.properties.average_rating}</p>
+          )}
+          {ratingNumber ? (
+            <p>Votes: {ratingNumber.ratings_count}</p>
+          ) : (
+            <p>Votes: {spot.properties.ratings_count}</p>
+          )}
         </div>
-      )}
-      <div className="rating">
-        <input
-          type="radio"
-          checked={currentRating === 5}
-          id="star5"
-          name="rating"
-          value="5"
-          onChange={(e) => handleAddRating(e.target.value)}
-        />
-        <label htmlFor="star5"></label>
-        <input
-          type="radio"
-          checked={currentRating === 4}
-          id="star4"
-          name="rating"
-          value="4"
-          onChange={(e) => handleAddRating(e.target.value)}
-        />
-        <label htmlFor="star4"></label>
-        <input
-          type="radio"
-          checked={currentRating === 3}
-          id="star3"
-          name="rating"
-          value="3"
-          onChange={(e) => handleAddRating(e.target.value)}
-        />
-        <label htmlFor="star3"></label>
-        <input
-          type="radio"
-          checked={currentRating === 2}
-          id="star2"
-          name="rating"
-          value="2"
-          onChange={(e) => handleAddRating(e.target.value)}
-        />
-        <label htmlFor="star2"></label>
-        <input
-          type="radio"
-          checked={currentRating === 1}
-          id="star1"
-          name="rating"
-          value="1"
-          onChange={(e) => handleAddRating(e.target.value)}
-        />
-        <label htmlFor="star1"></label>
+        <p>
+          Private territory: {spot.properties.private_territory ? "Yes" : "No"}
+        </p>
+        <p>Shops nearby: {spot.properties.shop_nearby ? "Yes" : "No"}</p>
+        <p>Gazebos: {spot.properties.gazebos ? "Yes" : "No"}</p>
+        <p>Near water: {spot.properties.near_water ? "Yes" : "No"}</p>
+        <p>Can fishing: {spot.properties.fishing ? "Yes" : "No"}</p>
+        <p>Trash cans: {spot.properties.trash_cans ? "Yes" : "No"}</p>
+        <p>Tables: {spot.properties.tables ? "Yes" : "No"}</p>
+        <p>Benches: {spot.properties.benches ? "Yes" : "No"}</p>
+        <p>Fire pits: {spot.properties.fire_pit ? "Yes" : "No"}</p>
+        <p>Toilet: {spot.properties.toilet ? "Yes" : "No"}</p>
+        <p>Car access: {spot.properties.car_access ? "Yes" : "No"}</p>
       </div>
-      {ratingNumber && <p>You rated: {ratingNumber.user_rating}</p>}
-      {ratingNumber ? (
-        <p>Average rating: {ratingNumber.average_rating}</p>
-      ) : (
-        <p>Average rating: {spot.properties.average_rating}</p>
-      )}
-      {ratingNumber ? (
-        <p>Votes: {ratingNumber.ratings_count}</p>
-      ) : (
-        <p>Votes: {spot.properties.ratings_count}</p>
-      )}
-      <BaseMap center={spotCoords} zoom={13}>
-        <Marker position={spotCoords}>
-          <Popup>{spot.properties.name}</Popup>
-        </Marker>
-      </BaseMap>
+
+      <div className="map-column">
+        <BaseMap center={spotCoords} zoom={13}>
+          <Marker position={spotCoords}>
+            <Popup>{spot.properties.name}</Popup>
+          </Marker>
+        </BaseMap>
+        {spot.properties.photos?.length > 0 && (
+          <div className="spot-photos">
+            <h3>Photos</h3>
+            <div className="photos-grid">
+              {spot.properties.photos.map((photo) => (
+                <a
+                  href={photo.photo}
+                  key={photo.id}
+                  target="_blank"
+                  rel="noopener noreferer"
+                >
+                  <img
+                    src={photo.photo}
+                    alt={`Photoof  ${spot.properties.name}`}
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

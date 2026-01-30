@@ -1,5 +1,4 @@
 import requests
-from PIL import Image
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
