@@ -25,7 +25,7 @@ const Login = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form className="user-page-container user-page-form" onSubmit={handleSubmit}>
       {errorMessage?.detail && (
           <p>{errorMessage.detail}</p>
         )}

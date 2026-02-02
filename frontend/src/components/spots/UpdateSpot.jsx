@@ -305,32 +305,32 @@ const UpdateSpot = () => {
             <Popup>{spotData.properties.name}</Popup>
           </Marker>
         </BaseMap>
-                  {spotData.properties.photos?.length > 0 && (
-            <div className="spot-photos">
-              <div className="photos-grid">
-                {spotData.properties.photos.map((photo) => (
-                  <div key={photo.id}>
-                    <a
-                      href={photo.photo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        src={photo.photo}
-                        alt={`Photo of ${spotData.properties.name}`}
-                      />
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => handleDeletePhoto(photo.id)}
-                    >
-                      Delete Photo
-                    </button>
-                  </div>
-                ))}
-              </div>
+        {spotData.properties.photos?.length > 0 && (
+          <div className="spot-photos">
+            <div className="photos-grid">
+              {spotData.properties.photos.map((photo) => (
+                <div key={photo.id}>
+                  <a
+                    href={photo.photo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={photo.photo}
+                      alt={`Photo of ${spotData.properties.name}`}
+                    />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePhoto(photo.id)}
+                  >
+                    Delete Photo
+                  </button>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
+        )}
       </div>
     </div>
   );

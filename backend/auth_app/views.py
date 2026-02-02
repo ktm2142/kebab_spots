@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-
 from .models import CustomUser
-from .serializers import RegistrationSerializer, UserProfileSerializer
+from .serializers import RegistrationSerializer, UserProfileSerializer, UserSpotsHistorySerializer
+from kebab_spots_app.models import KebabSpot
 
 
 class RegistrationAPIVIew(generics.CreateAPIView):
@@ -25,3 +25,11 @@ class UserProfileAPIVIew(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserHistoryAPIView(generics.ListAPIView):
+    serializer_class = UserSpotsHistorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return KebabSpot.objects.filter(user=self.request.user)

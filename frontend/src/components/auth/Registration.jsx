@@ -27,7 +27,7 @@ const Registration = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form className="user-page-container user-page-form" onSubmit={handleSubmit}>
         {errorMessage?.non_field_errors && (
           <p>{errorMessage.non_field_errors[0]}</p>
         )}

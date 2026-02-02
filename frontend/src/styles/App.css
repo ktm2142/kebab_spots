@@ -147,6 +147,30 @@ button.primary:hover {
   width: 100%;
 }
 
+/* ====== User page ======= */
+.user-page-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #000;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.user-history {
+  text-align: center;
+}
+.user-history :hover {
+  text-decoration: none;
+}
+
+.user-page-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
 
 
 /* Error message */

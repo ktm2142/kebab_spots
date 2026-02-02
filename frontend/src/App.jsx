@@ -9,6 +9,7 @@ import Map from "./components/map/Map";
 import CreateSpot from "./components/spots/CreateSpot";
 import DetailsSpot from "./components/spots/DetailsSpot";
 import UpdateSpot from "./components/spots/UpdateSpot";
+import UserHistory from "./components/user_profile/UserHistory";
 
 function App() {
   const { logout, user } = useContext(AuthContext);
@@ -66,6 +67,7 @@ function App() {
           <Route path="/registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/user_profile" element={<UserProfile />} />
+          <Route path="/user_history" element={<UserHistory />} />
           <Route path="/create_spot" element={<CreateSpot />} />
           <Route path="/details_spot/:id/" element={<DetailsSpot />} />
           <Route path="/update_spot/:id/" element={<UpdateSpot />} />

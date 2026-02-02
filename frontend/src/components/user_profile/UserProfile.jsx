@@ -3,8 +3,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
-  const { user, updateUserProfile } =
-    useContext(AuthContext);
+  const { user, updateUserProfile } = useContext(AuthContext);
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -61,57 +60,60 @@ const UserProfile = () => {
   if (!user) return <p>Loading</p>;
 
   return (
-    <>
-      {editMode ? (
-        <div>
-          <form onSubmit={handleSubmit}>
-            <input
-              name="firstName"
-              value={form.firstName}
-              onChange={handleChange}
-              placeholder="Your first name"
-            />
-            <input
-              name="lastName"
-              value={form.lastName}
-              onChange={handleChange}
-              placeholder="Your last name"
-            />
-            <input
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Your email"
-            />
-            <input
-              name="city"
-              value={form.city}
-              onChange={handleChange}
-              placeholder="Your city"
-            />
-            <input
-              name="country"
-              value={form.country}
-              onChange={handleChange}
-              placeholder="Your country"
-            />
-            <button type="submit">Save</button>
+    <div>
+        <button onClick={() => navigate("/user_history")}>Your spots</button>
+      <div className="user-page-container">
+        {editMode ? (
+          <div>
+            <form className="user-page-form" onSubmit={handleSubmit}>
+              <input
+                name="firstName"
+                value={form.firstName}
+                onChange={handleChange}
+                placeholder="First name"
+              />
+              <input
+                name="lastName"
+                value={form.lastName}
+                onChange={handleChange}
+                placeholder="Last name"
+              />
+              <input
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="E-mail"
+              />
+              <input
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                placeholder="City"
+              />
+              <input
+                name="country"
+                value={form.country}
+                onChange={handleChange}
+                placeholder="Country"
+              />
+              <button type="submit">Save</button>
+              {toggleCancelButton}
+            </form>
+          </div>
+        ) : (
+          <div>
+            <h1>Your info, {user.username}:</h1>
+            <p>First name: {user.first_name}</p>
+            <p>last name: {user.last_name}</p>
+            <p>E-mail: {user.email}</p>
+            <p>City: {user.city}</p>
+            <p>Country: {user.country}</p>
             {toggleCancelButton}
-          </form>
-        </div>
-      ) : (
-        <div>
-          <h1>Hello {user.username}</h1>
-          <p>First name: {user.first_name}</p>
-          <p>last name: {user.first_name}</p>
-          <p>E-mail: {user.email}</p>
-          <p>City: {user.city}</p>
-          <p>Country: {user.country}</p>
-          {toggleCancelButton}
-        </div>
-      )}
-    </>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

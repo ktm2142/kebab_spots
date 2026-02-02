@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser
-
+from kebab_spots_app.models import KebabSpot
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -21,3 +21,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'city', 'country']
+
+
+class UserSpotsHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KebabSpot
+        fields =['id', 'name', 'average_rating', 'ratings_count']
