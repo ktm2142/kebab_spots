@@ -1,6 +1,6 @@
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework import serializers
-from .models import KebabSpot, KebabSpotRating, KebabSpotPhoto
+from .models import KebabSpot, KebabSpotRating, KebabSpotPhoto, KebabSpotComplaint
 
 
 class KebabSpotPhotoSerializer(serializers.ModelSerializer):
@@ -8,6 +8,13 @@ class KebabSpotPhotoSerializer(serializers.ModelSerializer):
         model = KebabSpotPhoto
         fields = ['id', 'photo', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+
+class KebabSpotComplaintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KebabSpotComplaint
+        fields = ['id', 'user', 'spot', 'reason', 'created_at']
+        read_only_fields = ['id', 'created_at', 'user', 'spot']
 
 
 class KebabSpotListSerializer(GeoFeatureModelSerializer):

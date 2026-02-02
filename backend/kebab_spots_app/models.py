@@ -14,11 +14,12 @@ class KebabSpot(models.Model):
 
     # Info
     name = models.CharField(max_length=50)
-    description = models.TextField()
+    description = models.TextField(blank=True)
 
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    hidden = models.BooleanField(default=False)
 
     # Rating data
     average_rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
@@ -80,3 +81,16 @@ class KebabSpotPhoto(models.Model):
 
     def __str__(self):
         return f'Photo of spot ID: {self.spot.name} by {self.user.username}'
+
+
+class KebabSpotComplaint(models.Model):
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    spot = models.ForeignKey(KebabSpot, on_delete=models.CASCADE, related_name='complaints')
+    reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('spot', 'user')
+
+    def __str__(self):
+        return f'Complaint of {self.user.username} on {self.spot.name}'

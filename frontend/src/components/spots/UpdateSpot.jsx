@@ -19,6 +19,7 @@ const UpdateSpot = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [spotData, setSpotData] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [form, setForm] = useState({
     name: "",
@@ -115,7 +116,9 @@ const UpdateSpot = () => {
       });
       navigate(`/details_spot/${id}`);
     } catch (error) {
-      console.error("Error in updateKebabSpotData", error);
+      if (error.response?.data?.Photos) {
+        setErrorMsg(error.response.data.Photos);
+      }
     }
   };
 
@@ -181,6 +184,7 @@ const UpdateSpot = () => {
       <div className="map-controls">
         <h2>{spotData.properties.name}</h2>
         <p>{spotData.properties.description}</p>
+        {errorMsg && <div className="error-message">{errorMsg}</div>}
         <form onSubmit={handleSubmit}>
           <input name="name" value={form.name} onChange={handleTextChange} />
           <textarea

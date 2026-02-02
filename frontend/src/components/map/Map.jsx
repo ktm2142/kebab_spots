@@ -92,7 +92,7 @@ const Map = () => {
   const handleUserLocation = async () => {
     console.log("Getting geolocation");
     const options = {
-      timeout: 10000, // for showing error after not getting geolocation for 10 sec
+      timeout: 10000, // for showing error after NOT getting geolocation for 10 sec
       maximumAge: 60000, // Cashing geolocation for 1 minute
     };
     try {
@@ -189,10 +189,10 @@ const Map = () => {
     handleUserLocation();
   }, []);
 
-  // Fetch spots whenever radius or coordinates change
+  // Fetch spots whenever coordinates change
   useEffect(() => {
     fetchSpots();
-  }, [radius, coordinates]);
+  }, [coordinates]);
 
   return (
     <div className="map-layout">

@@ -9,28 +9,8 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 
 from .mixins import CheckPhotosMixin, FiltersMixin
-from .models import KebabSpot, KebabSpotRating, KebabSpotPhoto
-from .serializers import KebabSpotListSerializer, KebabSpotDetailSerializer
-
-
-def apply_filters(queryset, query_params):
-    amenities = [
-        'private_territory', 'shop_nearby', 'gazebos', 'near_water',
-        'fishing', 'trash_cans', 'tables', 'benches', 'fire_pit', 'toilet',
-        'car_access'
-    ]
-    for amenity in amenities:
-        value = query_params.get(amenity)
-        if value == 'true':
-            queryset = queryset.filter(**{amenity: True})
-
-    min_rating = query_params.get('min_rating')
-    if min_rating:
-        try:
-            queryset = queryset.filter(average_rating__gte=float(min_rating))
-        except (ValueError, TypeError):
-            pass
-    return queryset
+from .models import KebabSpot, KebabSpotRating, KebabSpotPhoto, KebabSpotComplaint
+from .serializers import KebabSpotListSerializer, KebabSpotDetailSerializer, KebabSpotComplaintSerializer
 
 
 class ListKebabSpotsAPIView(FiltersMixin, generics.ListAPIView):
@@ -159,13 +139,13 @@ class CreateKebabSpotAPIView(CheckPhotosMixin, generics.CreateAPIView):
 
     def perform_create(self, serializer):
         photos = self.get_photos()
+
         if photos:
             self.validate_photos(photos)
 
-        # creating the spot
-        spot = serializer.save(user=self.request.user)
+        spot = serializer.save(user=self.request.user)  # creating the spot
 
-        self.save_photos(spot, photos)
+        self.save_photos(spot, photos)  # saving photos of the spot
 
 
 class DetailsKebabSpotAPIView(generics.RetrieveAPIView):
@@ -184,11 +164,12 @@ class UpdateKebabSpotAPIView(CheckPhotosMixin, generics.RetrieveUpdateDestroyAPI
 
     def perform_update(self, serializer):
         photos = self.get_photos()
-        if photos:
-            self.validate_photos(photos)
+        spot = self.get_object()  # getting the spot for checking quantity of existed photos
 
-        # creating the spot
-        spot = serializer.save(user=self.request.user)
+        if photos:
+            self.validate_photos(photos, spot)
+
+        spot = serializer.save(user=self.request.user)  # creating the spot
 
         self.save_photos(spot, photos)
 
@@ -241,3 +222,25 @@ class RateKebabSpotAPIView(APIView):
             'ratings_count': spot.ratings_count,
             'user_rating': rating_value
         }, status=status.HTTP_200_OK)
+
+
+class ComplaintKebabSpotAPIView(generics.CreateAPIView):
+    serializer_class = KebabSpotComplaintSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        spot = get_object_or_404(KebabSpot, pk=self.kwargs['pk'])
+
+        complaint, created = KebabSpotComplaint.objects.get_or_create(
+            spot=spot,
+            user=self.request.user,
+            defaults={
+                'reason': serializer.validated_data.get('reason', '')
+            }
+        )
+        if not created:
+            raise ValidationError("You already send complaint on this spot")
+
+        if spot.complaints.count() >= 5:
+            spot.hidden = True
+            spot.save(update_fields=['hidden'])

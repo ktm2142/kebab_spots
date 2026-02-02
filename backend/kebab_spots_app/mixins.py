@@ -12,8 +12,11 @@ class CheckPhotosMixin:
     def get_photos(self):
         return self.request.FILES.getlist(self.PHOTOS_FIELD)
 
-    def validate_photos(self, photos):
-        if len(photos) > self.MAX_PHOTOS:
+    def validate_photos(self, photos, spot=None):
+        old_photos = 0
+        if spot is not None:
+            old_photos = spot.photos.count()
+        if old_photos + len(photos) > self.MAX_PHOTOS:
             raise ValidationError({'Photos': 'Maximum photos for upload is 10'})
         for photo in photos:
             self.validate_type_size(photo)

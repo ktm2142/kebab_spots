@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { privateApiClient, publicApiClient } from "../../api";
 import { AuthContext } from "../../contexts/AuthContext";
 import "../../styles/rating.css";
+import "../../styles/complaint.css";
 
 /**
  * DetailsSpot - Component for displaying detailed information about a kebab spot.
@@ -22,7 +23,10 @@ const DetailsSpot = () => {
   const navigate = useNavigate();
   const [spot, setSpot] = useState(null);
   const [ratingNumber, setRatingNumber] = useState(null);
+  const [complaintWindow, setComplaintWindow] = useState(false);
+  const [complaintReason, setComplaintReason] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   /**
    * Fetches spot details from the API when component mounts or when spot ID changes.
@@ -62,6 +66,26 @@ const DetailsSpot = () => {
       setRatingNumber(response.data);
     } catch (error) {
       console.error("Error in adding rating function", error);
+    }
+  };
+
+  const handleComplaint = async (e) => {
+    e.preventDefault();
+    try {
+      await privateApiClient.post(`/kebab_spots/complaint/${id}/`, {
+        reason: complaintReason,
+      });
+      window.alert("Your complaint has been submitted");
+      setComplaintReason("");
+      setComplaintWindow(false);
+    } catch (error) {
+      if (error.response?.data) {
+        window.alert(error.response.data[0]);
+        setComplaintWindow(false);
+        setComplaintReason("");
+      } else {
+        console.error("Error in handleComplaint", error);
+      }
     }
   };
 
@@ -105,6 +129,7 @@ const DetailsSpot = () => {
             <button>Update Spot</button>
           </Link>
         )}
+
         <h2>{spot.properties.name}</h2>
         <p>{spot.properties.description}</p>
         <div className="rating-box">
@@ -180,6 +205,8 @@ const DetailsSpot = () => {
         <p>Fire pits: {spot.properties.fire_pit ? "Yes" : "No"}</p>
         <p>Toilet: {spot.properties.toilet ? "Yes" : "No"}</p>
         <p>Car access: {spot.properties.car_access ? "Yes" : "No"}</p>
+        <button onClick={() => setComplaintWindow(true)}>Complaint</button>
+
       </div>
 
       <div className="map-column">
@@ -209,6 +236,27 @@ const DetailsSpot = () => {
           </div>
         )}
       </div>
+      {complaintWindow && (
+        <div
+          className="modal-overlay"
+          onClick={() => setComplaintWindow(false)}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Report spot</h3>
+            <form onSubmit={handleComplaint}>
+              <textarea
+                value={complaintReason}
+                onChange={(e) => setComplaintReason(e.target.value)}
+                placeholder="Reason of complaint"
+              />
+              <button type="submit">Send</button>
+              <button type="button" onClick={() => setComplaintWindow(false)}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
