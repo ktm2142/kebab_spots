@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { privateApiClient } from "../../api";
 
 const UserHistory = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loadingAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const [spotsList, setSpotsList] = useState([]);
 
@@ -22,11 +22,16 @@ const UserHistory = () => {
   }, [user]);
 
   useEffect(() => {
+    if (loadingAuth) {
+      return;
+    }
+
     if (!user) {
       return navigate("/");
     }
-  }, [user]);
+  }, [user, loadingAuth]);
 
+  if (loadingAuth) return <p>Loading</p>;
   if (!user) return <p>Loading</p>;
 
   if (spotsList.length == 0) {

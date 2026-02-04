@@ -1,6 +1,7 @@
 import { Marker, Popup } from "react-leaflet";
 import BaseMap from "../map/BaseMap";
-import { useEffect, useMemo, useState } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { privateApiClient } from "../../api";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -16,6 +17,7 @@ import { useNavigate, useParams } from "react-router-dom";
  */
 const UpdateSpot = () => {
   const { id } = useParams();
+  const { user, loadingAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [spotData, setSpotData] = useState(null);
@@ -37,25 +39,36 @@ const UpdateSpot = () => {
     car_access: false,
   });
 
-  // Fetches spot data from API when component mounts or when spot ID changes.
   // Sets loading state during fetch and handles errors gracefully.
+  const fetchUserSpotData = async () => {
+    try {
+      setLoading(true);
+      const response = await privateApiClient.get(
+        `kebab_spots/spot_update/${id}`,
+      );
+      setSpotData(response.data);
+    } catch (error) {
+      console.error("Error in fetchUserSpotData", error);
+      setSpotData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetches spot data from API when component mounts or when spot ID changes.
   useEffect(() => {
-    const fetchUserSpotData = async () => {
-      try {
-        setLoading(true);
-        const response = await privateApiClient.get(
-          `kebab_spots/spot_update/${id}`,
-        );
-        setSpotData(response.data);
-      } catch (error) {
-        console.error("Error in fetchUserSpotData", error);
-        setSpotData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUserSpotData();
   }, [id]);
+
+  useEffect(() => {
+    if (loadingAuth) {
+      return;
+    }
+
+    if (!user) {
+      return navigate("/");
+    }
+  }, [user, loadingAuth]);
 
   // Populates form fields with spot data once it's loaded from the API.
   // This ensures the form is pre-filled with existing values for editing.
@@ -176,7 +189,8 @@ const UpdateSpot = () => {
     }));
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loadingAuth || loading) return <p>Loading</p>;
+  // if (loading) return <p>Loading</p>;
   if (!spotData) return <p>Spot was deleted or had too many complaints.</p>;
 
   return (

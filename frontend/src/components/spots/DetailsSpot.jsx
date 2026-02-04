@@ -26,7 +26,6 @@ const DetailsSpot = () => {
   const [complaintWindow, setComplaintWindow] = useState(false);
   const [complaintReason, setComplaintReason] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);
 
   /**
    * Fetches spot details from the API when component mounts or when spot ID changes.
@@ -36,22 +35,19 @@ const DetailsSpot = () => {
    * - Error handling (sets spot to null on error)
    * - Uses public API endpoint (no authentication required)
    */
-  useEffect(() => {
-    const fetchSpotDetails = async () => {
-      try {
-        setLoading(true);
-        const client = user ? privateApiClient : publicApiClient;
-        const result = await client.get(`kebab_spots/spot_detail/${id}/`);
-        setSpot(result.data);
-      } catch (error) {
-        console.error("Error in fetchSpotDetails", error);
-        setSpot(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSpotDetails();
-  }, [id, user]);
+  const fetchSpotDetails = async () => {
+    try {
+      setLoading(true);
+      const client = user ? privateApiClient : publicApiClient;
+      const result = await client.get(`kebab_spots/spot_detail/${id}/`);
+      setSpot(result.data);
+    } catch (error) {
+      console.error("Error in fetchSpotDetails", error);
+      setSpot(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddRating = async (rating) => {
     if (!user) {
@@ -89,6 +85,10 @@ const DetailsSpot = () => {
     }
   };
 
+  useEffect(() => {
+    fetchSpotDetails();
+  }, [id, user]);
+
   // Show loading indicator while fetching spot data
   if (loading) return <p>Loading...</p>;
   // Show error message if spot doesn't exist (deleted or too many complaints)
@@ -116,6 +116,7 @@ const DetailsSpot = () => {
    * Used to conditionally show the "Update Spot" button only to the spot owner.
    */
   const isOwner = user && spot.properties.user === user.id;
+
   const currentRating = ratingNumber
     ? ratingNumber.user_rating
     : spot.properties.user_rating;
@@ -181,6 +182,9 @@ const DetailsSpot = () => {
             <label htmlFor="star1"></label>
           </div>
           {ratingNumber && <p>You rated: {ratingNumber.user_rating}</p>}
+
+          {/* Initially we show rating from loaded spot data.  */}
+          {/* After user votes, ratingNumber contains updated rating and votes count. */}
           {ratingNumber ? (
             <p>Average rating: {ratingNumber.average_rating}</p>
           ) : (
@@ -206,7 +210,6 @@ const DetailsSpot = () => {
         <p>Toilet: {spot.properties.toilet ? "Yes" : "No"}</p>
         <p>Car access: {spot.properties.car_access ? "Yes" : "No"}</p>
         <button onClick={() => setComplaintWindow(true)}>Complaint</button>
-
       </div>
 
       <div className="map-column">

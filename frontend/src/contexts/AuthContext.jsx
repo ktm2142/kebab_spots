@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate(); // for redirection by using URL path
   const [user, setUser] = useState(null); // user data will be written in this state
   const [errorMessage, setErrorMessage] = useState(null); // state for throwing erors in components
+  const [loadingAuth, setLoadingAuth] = useState(true)
 
   // errors tells exactly in which function we got error
 
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         console.error("Error in login function", error);
       }
-    }
+    } 
   };
 
   // logout functionality clears tokens from local storage, deletes user state and redirect to main page
@@ -58,6 +59,7 @@ export const AuthProvider = ({ children }) => {
   // Main functionality of downloading user profile
   const fetchUserProfile = async () => {
     try {
+      setLoadingAuth(true)
       const response = await privateApiClient.get("auth/user_profile/");
       setUser(response.data);
     } catch (error) {
@@ -65,6 +67,8 @@ export const AuthProvider = ({ children }) => {
       error.response?.data
         ? console.error("error in fetchUserProfile", error.response.data)
         : console.error("error in fetchUserProfile", error);
+    } finally {
+      setLoadingAuth(false)
     }
   };
 
@@ -86,6 +90,7 @@ export const AuthProvider = ({ children }) => {
       fetchUserProfile();
     } else {
       setUser(null);
+      setLoadingAuth(false)
     }
   }, []);
 
@@ -99,6 +104,7 @@ export const AuthProvider = ({ children }) => {
         updateUserProfile,
         user,
         errorMessage,
+        loadingAuth
       }}
     >
       {children}

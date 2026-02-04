@@ -3,7 +3,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
-  const { user, updateUserProfile } = useContext(AuthContext);
+  const { user, updateUserProfile, loadingAuth } = useContext(AuthContext);
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -52,16 +52,21 @@ const UserProfile = () => {
   );
 
   useEffect(() => {
+    if (loadingAuth) {
+      return;
+    }
+
     if (!user) {
       return navigate("/");
     }
-  }, [user]);
+  }, [user, loadingAuth]);
 
-  if (!user) return <p>Loading</p>;
+  if (loadingAuth) return <p>Loading</p>;
+  // if (!user) return <p>Loading</p>;
 
   return (
     <div>
-        <button onClick={() => navigate("/user_history")}>Your spots</button>
+      <button onClick={() => navigate("/user_history")}>Your spots</button>
       <div className="user-page-container">
         {editMode ? (
           <div>
