@@ -27,6 +27,15 @@
   gap: 0.5rem;
 }
 
+.nav-right-desktop {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-right-mobile {
+  display: none;
+}
+
 .nav-right button {
   min-width: 120px;
 }
@@ -182,4 +191,129 @@ button.primary:hover {
   border-radius: 6px;
   margin-top: 8px;
   font-size: 14px;
+}
+
+
+
+/* ========= Адаптація під мобільні пристрої ========= */
+
+/* ========= Адаптація під мобільні пристрої ========= */
+
+@media (max-width: 768px) {
+  
+  /* Хедер: робимо його компактнішим, але залишаємо три колонки */
+  .app-header {
+    grid-template-columns: auto 1fr auto;
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .header-title {
+    text-align: center;
+    font-size: 1.2rem;
+  }
+
+  .nav-left {
+    justify-content: flex-start;
+  }
+
+  .nav-right {
+    justify-content: flex-end;
+    gap: 0.3rem;
+  }
+
+  .nav-right button,
+  .nav-left button {
+    min-width: auto;
+    padding: 0.4em 0.8em;
+    font-size: 0.9em;
+  }
+
+  .app-main {
+    padding: 0.5rem;
+  }
+
+  /* Головна розкладка: вертикальна замість горизонтальної */
+  .map-layout {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* ОСЬ ТУТ ФІШКА: карта йде першою візуально, хоч в HTML вона друга */
+  .map-column {
+    order: 1; /* Карта буде першою */
+    width: 100%;
+    /* Прибираємо min-width: 0 бо тепер карта не в flex-row */
+  }
+
+  .map-controls {
+    order: 2; /* Панель управління буде другою */
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  /* Карта займає рівно половину висоти екрану */
+  .leaflet-container {
+    height: 50vh !important;
+    /* !important потрібен бо в BaseMap.jsx ти задаєш інлайн-стиль через style={{}} 
+       і інлайн-стилі мають вищий пріоритет ніж звичайний CSS */
+  }
+
+  /* Сітка зручностей в одну колонку для зручності */
+  .amenities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Фотки: менше колонок */
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .photos-grid img {
+    height: 100px;
+  }
+
+  .user-page-container {
+    margin: 20px auto;
+    padding: 15px;
+  }
+}
+
+/* Для маленьких телефонів */
+@media (max-width: 480px) {
+  
+  .header-title {
+    font-size: 1rem;
+  }
+
+  .nav-left,
+  .nav-right {
+    width: 100%;
+    justify-content: center;
+    gap: 0.2rem;
+  }
+
+  .nav-right button,
+  .nav-left button {
+    font-size: 0.85em;
+    padding: 0.3em 0.6em;
+  }
+
+  .map-controls {
+    padding: 0.5rem;
+  }
+
+  /* На дуже маленьких екранах можна зробити карту трохи меншою, 
+     щоб більше фільтрів було одразу видно без скролу */
+  .leaflet-container {
+    height: 45vh !important;
+  }
+
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .photos-grid img {
+    height: 80px;
+  }
 }

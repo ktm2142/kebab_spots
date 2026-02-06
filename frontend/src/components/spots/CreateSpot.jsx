@@ -123,7 +123,7 @@ const CreateSpot = () => {
   return (
     <div className="map-layout">
       <div className="map-controls">
-        <h1>Add Spot</h1>
+        <h2>Add Spot</h2>
         {!position && <p>Click on the map to set the location</p>}
         {errorMsg && <div className="error-message">{errorMsg}</div>}
 

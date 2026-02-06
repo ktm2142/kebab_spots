@@ -20,6 +20,32 @@ function App() {
   const loginPage = pathname === "/login";
   const userProfilePage = pathname === "/user_profile";
 
+  const navButtons = !user ? (
+    <>
+      <button
+        onClick={() =>
+          registrationPage ? navigate("/") : navigate("/registration")
+        }
+      >
+        {registrationPage ? "Close" : "Registration"}
+      </button>
+      <button onClick={() => (loginPage ? navigate("/") : navigate("/login"))}>
+        {loginPage ? "Close" : "Login"}
+      </button>
+    </>
+  ) : (
+    <>
+      <button
+        onClick={() =>
+          userProfilePage ? navigate("/") : navigate("/user_profile")
+        }
+      >
+        {userProfilePage ? "Close" : "Profile"}
+      </button>
+      <button onClick={logout}>Logout</button>
+    </>
+  );
+
   return (
     <>
       <header className="app-header">
@@ -32,33 +58,10 @@ function App() {
         </div>
         <h1 className="header-title">Kebab Spots</h1>
         <div className="nav-right">
-          {!user ? (
-            <>
-              <button
-                onClick={() =>
-                  registrationPage ? navigate("/") : navigate("/registration")
-                }
-              >
-                {registrationPage ? "Close" : "Registration"}
-              </button>
-              <button
-                onClick={() => (loginPage ? navigate("/") : navigate("/login"))}
-              >
-                {loginPage ? "Close" : "Login"}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() =>
-                  userProfilePage ? navigate("/") : navigate("/user_profile")
-                }
-              >
-                {userProfilePage ? "Close" : "Profile"}
-              </button>
-              <button onClick={logout}>Logout</button>
-            </>
-          )}
+          <div className="nav-right-desktop">{navButtons}</div>
+          <details className="nav-right-mobile">
+            <div>{navButtons}</div>
+          </details>
         </div>
       </header>
       <main className="app-main">
