@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Marker, useMapEvents } from "react-leaflet";
 import BaseMap from "../map/BaseMap";
 import { privateApiClient } from "../../api";
 import { useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
 
 /**
  * LocationMarker - A component that handles map click events to set spot position.
@@ -28,6 +29,7 @@ const LocationMarker = ({ setPos }) => {
  * - Sends POST request to create spot via private API
  */
 const CreateSpot = () => {
+  const { user, loadingAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   // Get the map center position passed from Map component via navigation state.
@@ -119,6 +121,19 @@ const CreateSpot = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (loadingAuth) {
+      return;
+    }
+
+    if (!user) {
+      return navigate("/login");
+    }
+  }, [user, loadingAuth]);
+
+  if (loadingAuth) return <p>Loading</p>;
+  if (!user) return <p>Loading</p>;
 
   return (
     <div className="map-layout">

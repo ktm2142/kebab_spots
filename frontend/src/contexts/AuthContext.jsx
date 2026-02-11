@@ -8,9 +8,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate(); // for redirection by using URL path
   const [user, setUser] = useState(null); // user data will be written in this state
   const [errorMessage, setErrorMessage] = useState(null); // state for throwing erors in components
-  const [loadingAuth, setLoadingAuth] = useState(true)
-
-  // errors tells exactly in which function we got error
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   // registration redirects to login page after success
   const registration = async (data) => {
@@ -21,8 +19,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       if (error.response?.data) {
         setErrorMessage(error.response.data);
-      } else {
-        console.error("Error in registration function", error);
       }
     }
   };
@@ -38,10 +34,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       if (error.response?.data) {
         setErrorMessage(error.response.data);
-      } else {
-        console.error("Error in login function", error);
       }
-    } 
+    }
   };
 
   // logout functionality clears tokens from local storage, deletes user state and redirect to main page
@@ -59,28 +53,29 @@ export const AuthProvider = ({ children }) => {
   // Main functionality of downloading user profile
   const fetchUserProfile = async () => {
     try {
-      setLoadingAuth(true)
+      setLoadingAuth(true);
       const response = await privateApiClient.get("auth/user_profile/");
       setUser(response.data);
+      setErrorMessage(null);
     } catch (error) {
-      setUser(null);
-      error.response?.data
-        ? console.error("error in fetchUserProfile", error.response.data)
-        : console.error("error in fetchUserProfile", error);
+      if (error.response?.status === 401) {
+        setErrorMessage("Your session is expired. please log in again");
+      }
     } finally {
-      setLoadingAuth(false)
+      setLoadingAuth(false);
     }
   };
 
   // updating user data in backend and writing updated data from backends response in user state
   const updateUserProfile = async (data) => {
     try {
+      setErrorMessage(null);
       const response = await privateApiClient.patch("auth/user_profile/", data);
       setUser(response.data);
     } catch (error) {
-      error.response?.data
-        ? console.error("error in updateUserProfile", error.response.data)
-        : console.error("error in updateUserProfile", error.response);
+      if (error.response?.status === 401) {
+        setErrorMessage("Yout session is expired. Please log in again");
+      }
     }
   };
 
@@ -90,7 +85,7 @@ export const AuthProvider = ({ children }) => {
       fetchUserProfile();
     } else {
       setUser(null);
-      setLoadingAuth(false)
+      setLoadingAuth(false);
     }
   }, []);
 
@@ -104,7 +99,7 @@ export const AuthProvider = ({ children }) => {
         updateUserProfile,
         user,
         errorMessage,
-        loadingAuth
+        loadingAuth,
       }}
     >
       {children}

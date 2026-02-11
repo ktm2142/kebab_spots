@@ -3,7 +3,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
-  const { user, updateUserProfile, loadingAuth } = useContext(AuthContext);
+  const { user, updateUserProfile, loadingAuth, errorMessage } = useContext(AuthContext);
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -57,19 +57,21 @@ const UserProfile = () => {
     }
 
     if (!user) {
-      return navigate("/");
+      return navigate("/login");
     }
   }, [user, loadingAuth]);
 
   if (loadingAuth) return <p>Loading</p>;
-  // if (!user) return <p>Loading</p>;
+  if (!user) return <p>Loading</p>;
 
   return (
     <div>
       <button onClick={() => navigate("/user_history")}>Your spots</button>
       <div className="user-page-container">
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         {editMode ? (
           <div>
+
             <form className="user-page-form" onSubmit={handleSubmit}>
               <input
                 name="firstName"

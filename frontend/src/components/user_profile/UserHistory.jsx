@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { privateApiClient } from "../../api";
 
 const UserHistory = () => {
-  const { user, loadingAuth } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [spotsList, setSpotsList] = useState([]);
 
@@ -13,26 +13,15 @@ const UserHistory = () => {
       const response = await privateApiClient.get("auth/user_history/");
       setSpotsList(response.data);
     } catch (error) {
-      console.error("Error in fetchSpotsHistory", error);
+      if (error.response?.status === 401) {
+        navigate("/login")
+      }
     }
   };
 
   useEffect(() => {
     fetchSpotsHistory();
   }, [user]);
-
-  useEffect(() => {
-    if (loadingAuth) {
-      return;
-    }
-
-    if (!user) {
-      return navigate("/");
-    }
-  }, [user, loadingAuth]);
-
-  if (loadingAuth) return <p>Loading</p>;
-  if (!user) return <p>Loading</p>;
 
   if (spotsList.length == 0) {
     return (

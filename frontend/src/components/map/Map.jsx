@@ -24,7 +24,7 @@ const MapTracker = ({ setCenterRef }) => {
 
 const Map = () => {
   const [spots, setSpots] = useState([]);
-  const { user } = useContext(AuthContext);
+  const { user, errorMessage } = useContext(AuthContext);
   const navigate = useNavigate();
   const default_lat = 50.450415530354796; // Default coordinates for Kyiv, Ukraine (used as fallback initial map center)
   const default_lon = 30.524544927812016;
@@ -201,9 +201,9 @@ const Map = () => {
   return (
     <div className="map-layout">
       <div className="map-controls">
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         <button onClick={handleUserLocation}>My Location</button>
         <button onClick={handleCreateSpot}>Create Kebab Spot</button>
-
         <form onSubmit={handleSearch}>
           <input
             type="text"
