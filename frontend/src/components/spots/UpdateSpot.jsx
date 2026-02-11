@@ -190,7 +190,6 @@ const UpdateSpot = () => {
   };
 
   if (loadingAuth || loading) return <p>Loading</p>;
-  // if (loading) return <p>Loading</p>;
   if (!spotData) return <p>Spot was deleted or had too many complaints.</p>;
 
   return (

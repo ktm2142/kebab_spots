@@ -34,6 +34,7 @@ const Map = () => {
     lat: default_lat,
     lon: default_lon,
   });
+  const [errorMsg, setErrorMsg] = useState(null);
   const [amenities, setAmenities] = useState({
     private_territory: false,
     shop_nearby: false,
@@ -144,7 +145,7 @@ const Map = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-
+    setErrorMsg(null)
     try {
       const response = await publicApiClient.get("kebab_spots/search/", {
         params: {
@@ -158,8 +159,11 @@ const Map = () => {
         lon: parseFloat(lon),
       });
     } catch (error) {
+      if (error.response?.data) {
+        setErrorMsg(error.response.data["error"]);
+      }
       if (error.response?.status === 404) {
-        alert("Location didn't found");
+        setErrorMsg("Location didn't found");
       } else {
         console.error("Error in handleSearch", error);
       }
@@ -207,6 +211,7 @@ const Map = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {errorMsg && <div className="error-message">{errorMsg}</div>}
           <button type="submit">Search</button>
         </form>
         <span>Radius of visible spots:</span>
@@ -226,7 +231,7 @@ const Map = () => {
             e.preventDefault();
             fetchSpots();
           }}
-        > 
+        >
           <h3>Filter</h3>
           <label>
             Minimal rating:
