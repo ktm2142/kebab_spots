@@ -16,4 +16,4 @@ COPY backend/ ./backend/
 
 WORKDIR /app/backend
 
-CMD python create_superuser.py && python manage.py migrate && gunicorn config_app.wsgi --bind 0.0.0.0:$PORT
+CMD python manage.py migrate && gunicorn config_app.wsgi --bind 0.0.0.0:$PORT
