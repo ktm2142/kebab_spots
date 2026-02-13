@@ -10,7 +10,7 @@ const baseConfig = {
 baseURL is a special axios property
 that is automatically added to the beginning of all URL paths when executing requests.
 */
-  baseURL: "http://127.0.0.1:8000/api/v1/",
+  baseURL: import.meta.env.VITE_API_URL,
 };
 
 //  client for public requests
