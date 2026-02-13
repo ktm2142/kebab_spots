@@ -146,6 +146,10 @@ CORS_ALLOWED_ORIGINS = [
     'https://kebab-spots.up.railway.app'
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://kebabspots-production.up.railway.app',
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',)
 }
