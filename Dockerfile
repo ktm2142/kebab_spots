@@ -16,4 +16,4 @@ COPY backend/ ./backend/
 
 WORKDIR /app/backend
 
-CMD python manage.py migrate && gunicorn config_app.wsgi --bind 0.0.0.0:$PORT
+CMD python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config_app.wsgi --bind 0.0.0.0:$PORT

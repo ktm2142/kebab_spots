@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'rest_framework_gis',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'whitenoise',
 
     'auth_app',
     'kebab_spots_app'
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
