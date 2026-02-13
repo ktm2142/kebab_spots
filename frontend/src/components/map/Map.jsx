@@ -91,7 +91,6 @@ const Map = () => {
   }, [coordinates.lat, coordinates.lon]);
 
   const handleUserLocation = async () => {
-    console.log("Getting geolocation");
     const options = {
       timeout: 10000, // for showing error after NOT getting geolocation for 10 sec
       maximumAge: 60000, // Cashing geolocation for 1 minute
@@ -99,13 +98,11 @@ const Map = () => {
     try {
       const position = await getPosition(options);
       const { latitude, longitude } = position.coords;
-      console.log("Geolocation got", latitude, longitude);
       setCoordinates({
         lat: latitude,
         lon: longitude,
       });
     } catch (error) {
-      console.error("Error geting user's position", error);
       alert("Check your geolocation permissions or use search");
     }
   };
