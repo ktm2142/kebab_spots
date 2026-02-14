@@ -30,7 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
 
     'django.contrib.gis',
     'rest_framework',
@@ -38,8 +40,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'whitenoise',
-    'cloudinary_storage',
-    'cloudinary',
 
     'auth_app',
     'kebab_spots_app'

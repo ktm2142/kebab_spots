@@ -231,7 +231,7 @@ const DetailsSpot = () => {
                 >
                   <img
                     src={photo.photo}
-                    alt={`Photoof  ${spot.properties.name}`}
+                    alt={`Photo of  ${spot.properties.name}`}
                   />
                 </a>
               ))}
