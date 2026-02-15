@@ -132,12 +132,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-import sys
-print("SETTINGS LOADED", file=sys.stderr)
-
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-STATICFILES_DIRS = []
 
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -166,9 +161,6 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
-
-STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 WHITENOISE_MANIFEST_STRICT = False
 
