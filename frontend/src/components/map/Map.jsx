@@ -216,7 +216,7 @@ const Map = () => {
           value={radius}
           onChange={(e) => setRadius(Number(e.target.value))}
         >
-          {[5, 10, 30].map((val) => (
+          {[5, 10, 30, 50, 100].map((val) => (
             <option key={val} value={val}>
               {val} km
             </option>
