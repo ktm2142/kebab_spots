@@ -37,7 +37,7 @@ class ListKebabSpotsAPIView(FiltersMixin, generics.ListAPIView):
             lat = float(lat)
             lon = float(lon)
             radius = float(radius)
-            if radius < 5 or radius > 30:
+            if radius < 5 or radius > 100:
                 raise ValidationError({'details': 'Radius must be between 5 and 30'})
         except (ValueError, TypeError):
             raise ValidationError({'details:' 'lat/lon/radius must be numbers'})
@@ -57,7 +57,7 @@ class SearchKebabSpotsAPIView(FiltersMixin, APIView):
 
     def get(self, request):
         location_name = self.request.query_params.get('location')
-        radius = self.request.query_params.get('radius', 10)
+        radius = self.request.query_params.get('radius', 5)
 
         if not location_name:
             return Response(
